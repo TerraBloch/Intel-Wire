@@ -1,0 +1,2390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Intel Wire v1.1</title>
+<!-- PWA -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Intel Wire">
+<meta name="theme-color" content="#080c12">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMGQxMTE3Ii8+PHRleHQgeD0iOTAiIHk9IjExNSIgZm9udC1mYW1pbHk9InN5c3RlbS11aSwtYXBwbGUtc3lzdGVtLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iODAiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPklXPC90ZXh0Pjwvc3ZnPg==">
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiSW50ZWwgV2lyZSB2MS4xIiwic2hvcnRfbmFtZSI6IkludGVsIFdpcmUiLCJzdGFydF91cmwiOiIuLyIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMwODBjMTIiLCJ0aGVtZV9jb2xvciI6IiMwODBjMTIiLCJpY29ucyI6W119">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap');
+
+/* ── Reset ── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Variables — matches Depth Chart Auditor ── */
+:root {
+  --bg: #080c12; --bg2: #0d1117; --bg3: #111827; --bg4: #0f172a;
+  --bdr: #1e293b; --bdr2: #1e2740;
+  --t1: #f1f5f9; --t2: #e2e8f0; --t3: #94a3b8; --t4: #64748b; --t5: #475569;
+  --blue: #2563eb; --blued: #1d4ed8; --bluebg: #172554; --bluel: #60a5fa; --bluell: #93c5fd;
+  --grn: #059669; --grnd: #047857; --grnbg: #052e16; --grnl: #34d399; --grnll: #6ee7b7;
+  --red: #dc2626; --redbg: #450a0a; --redl: #f87171;
+  --org: #d97706; --orgbg: #451a03; --orgl: #fbbf24;
+  --purp: #7c3aed; --purpbg: #2e1065; --purpl: #a78bfa;
+  --cyan: #0891b2; --cyanbg: #083344; --cyanl: #22d3ee;
+  --starter: #38bdf8; --starterbg: #0c4a6e;
+}
+
+body {
+  min-height: 100vh; background: var(--bg);
+  color: var(--t2); font-family: 'Söhne','Helvetica Neue',-apple-system,sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+::selection { background: #2563eb40; color: #fff; }
+
+/* ── Animations ── */
+@keyframes fi { from { opacity:0; transform:translateY(6px) } to { opacity:1; transform:translateY(0) } }
+@keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:.5 } }
+@keyframes shimmer { 0% { background-position:-200% 0 } 100% { background-position:200% 0 } }
+@keyframes glow { 0%,100% { box-shadow:0 0 4px rgba(56,189,248,.15) } 50% { box-shadow:0 0 12px rgba(56,189,248,.25) } }
+@keyframes slideIn { from { opacity:0; transform:translateX(-8px) } to { opacity:1; transform:translateX(0) } }
+@keyframes fadeUp { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
+@keyframes livePulse { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,.4) } 70% { box-shadow: 0 0 0 6px rgba(239,68,68,0) } }
+@keyframes scanLine { 0% { top: 0 } 100% { top: 100% } }
+.anim { animation: fi .3s ease; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+/* ── Header ── */
+.hdr {
+  border-bottom: 1px solid #1a2030; padding: 10px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(180deg,#0f1520,var(--bg)); backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 100;
+}
+.hdr-logo {
+  width: 32px; height: 32px; border-radius: 7px;
+  background: linear-gradient(135deg, #ef4444, var(--org));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 900; color: #fff;
+  box-shadow: 0 2px 8px rgba(239,68,68,.3);
+}
+.hdr-left { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+.hdr-title { font-size: 14px; font-weight: 800; color: var(--t1); letter-spacing: -.2px; }
+.hdr-sub { font-size: 10px; color: var(--t5); letter-spacing: .3px; }
+.hdr-btns { display: flex; gap: 6px; align-items: center; }
+
+/* ── Buttons ── */
+.btn-sm {
+  padding: 5px 12px; border-radius: 6px; border: 1px solid #334155;
+  background: var(--bg3); color: var(--t3); font-size: 11px; font-weight: 700;
+  cursor: pointer; transition: all .15s;
+}
+.btn-sm:hover { background: var(--bdr); color: var(--t2); border-color: #475569; }
+.btn-save {
+  padding: 5px 12px; border-radius: 6px; background: var(--bluebg);
+  color: var(--bluel); border: 1px solid #1e40af; font-size: 11px;
+  font-weight: 700; cursor: pointer; transition: all .15s;
+}
+.btn-save:hover { background: #1e3a5f; border-color: #3b82f6; }
+.btn-pri {
+  padding: 10px 20px; border-radius: 8px; border: none;
+  background: linear-gradient(135deg,var(--blue),var(--blued));
+  color: #fff; font-size: 13px; font-weight: 800; cursor: pointer;
+  box-shadow: 0 4px 20px #2563eb30; transition: all .2s;
+}
+.btn-pri:hover { box-shadow: 0 6px 28px #2563eb50; transform: translateY(-1px); }
+.btn-pri:disabled { background: var(--bdr); color: var(--t5); cursor: not-allowed; box-shadow: none; transform: none; }
+.btn-grn {
+  padding: 10px 20px; border-radius: 8px; border: none;
+  background: linear-gradient(135deg,var(--grn),var(--grnd));
+  color: #fff; font-size: 13px; font-weight: 800; cursor: pointer;
+  box-shadow: 0 4px 20px #05966930; transition: all .2s;
+}
+.btn-grn:hover { box-shadow: 0 6px 28px #05966950; transform: translateY(-1px); }
+.btn-red {
+  padding: 10px 20px; border-radius: 8px; border: none;
+  background: linear-gradient(135deg,var(--red),#b91c1c);
+  color: #fff; font-size: 13px; font-weight: 800; cursor: pointer;
+  box-shadow: 0 4px 20px #dc262630; transition: all .2s;
+}
+
+/* ── Layout ── */
+.wrap { max-width: 1400px; margin: 0 auto; padding: 20px; }
+.h2 { font-size: 20px; font-weight: 800; color: var(--t1); margin-bottom: 6px; letter-spacing: -.5px; }
+.sub { color: var(--t4); font-size: 13px; margin-bottom: 16px; }
+.grid-main { display: grid; grid-template-columns: 320px 1fr; gap: 16px; }
+@media (max-width: 900px) { .grid-main { grid-template-columns: 1fr; } }
+@media (max-width: 600px) {
+  .wrap { padding: 12px 8px; }
+  .hdr { padding: 10px 12px; }
+  .hdr-title { font-size: 13px; }
+  .hdr-sub { font-size: 9px; }
+  .lg-btn { padding: 6px 12px; font-size: 10px; }
+  .btn-sm { padding: 6px 10px; font-size: 10px; }
+  .btn-save { padding: 6px 10px; font-size: 10px; }
+  .feed-filter { padding: 6px 12px; font-size: 11px; }
+  .feed-btn { padding: 6px 12px; font-size: 11px; }
+  .main-tabs { flex-wrap: wrap; width: 100%; }
+  .main-tab { padding: 8px 12px; font-size: 11px; flex: 1; text-align: center; }
+  .stats-bar { grid-template-columns: repeat(3, 1fr); }
+  .stat-val { font-size: 18px; }
+  .h2 { font-size: 17px; }
+  .panel-body { padding: 8px; }
+  .feed-item { padding: 12px; }
+  .config-input { font-size: 16px; } /* prevents iOS zoom on focus */
+  select.config-input { font-size: 16px; }
+  .ta { font-size: 16px; }
+}
+
+/* ── Panels ── */
+.panel {
+  background: var(--bg2); border: 1px solid var(--bdr); border-radius: 10px;
+  overflow: hidden;
+}
+.panel-hdr {
+  padding: 12px 16px; border-bottom: 1px solid var(--bdr);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg4);
+}
+.panel-title { font-size: 12px; font-weight: 800; color: var(--t2); letter-spacing: .3px; text-transform: uppercase; }
+.panel-body { padding: 12px; max-height: calc(100vh - 200px); overflow-y: auto; }
+.panel-count {
+  font-size: 10px; font-weight: 700; color: var(--t5);
+  background: var(--bg3); padding: 2px 8px; border-radius: 10px; border: 1px solid var(--bdr);
+}
+
+/* ── Source List (Left Panel) ── */
+.src-search {
+  padding: 8px; border-bottom: 1px solid var(--bdr);
+}
+.src-search input {
+  width: 100%; padding: 7px 10px; border-radius: 6px; border: 1px solid var(--bdr);
+  background: var(--bg); color: var(--t2); font-size: 12px; outline: none;
+}
+.src-search input:focus { border-color: var(--blue); }
+.src-tabs {
+  display: flex; border-bottom: 1px solid var(--bdr); background: var(--bg4);
+}
+.src-tab {
+  flex: 1; padding: 8px; text-align: center; font-size: 10px; font-weight: 700;
+  color: var(--t5); cursor: pointer; transition: all .15s; border-bottom: 2px solid transparent;
+}
+.src-tab:hover { color: var(--t3); }
+.src-tab.on { color: var(--bluel); border-bottom-color: var(--blue); }
+.src-item {
+  display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+  border-bottom: 1px solid #111827; cursor: pointer; transition: all .1s;
+}
+.src-item:hover { background: var(--bg3); }
+.src-item.selected { background: var(--bluebg); border-left: 2px solid var(--blue); }
+.src-avatar {
+  width: 28px; height: 28px; border-radius: 50%; background: var(--bg3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 800; color: var(--t4); flex-shrink: 0;
+  border: 1px solid var(--bdr);
+}
+.src-info { flex: 1; min-width: 0; }
+.src-handle { font-size: 11px; font-weight: 700; color: var(--t2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.src-cat { font-size: 9px; font-weight: 600; padding: 1px 6px; border-radius: 8px; white-space: nowrap; }
+.cat-reporter { background: var(--bluebg); color: var(--bluel); }
+.cat-team { background: var(--grnbg); color: var(--grnl); }
+.cat-insider { background: var(--purpbg); color: var(--purpl); }
+.cat-analyst { background: var(--orgbg); color: var(--orgl); }
+.cat-league { background: var(--cyanbg); color: var(--cyanl); }
+.cat-other { background: var(--bg3); color: var(--t4); }
+.src-team { font-size: 9px; color: var(--t5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ── Feed Items ── */
+.feed-controls {
+  padding: 12px 16px; border-bottom: 1px solid var(--bdr);
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap; background: var(--bg4);
+}
+.feed-filter {
+  padding: 4px 10px; border-radius: 12px; border: 1px solid var(--bdr);
+  background: var(--bg3); color: var(--t4); font-size: 10px; font-weight: 700;
+  cursor: pointer; transition: all .15s;
+}
+.feed-filter:hover { border-color: var(--t5); color: var(--t3); }
+.feed-filter.on { border-color: var(--blue); color: var(--bluel); background: var(--bluebg); }
+
+.feed-item {
+  padding: 14px 16px; border-bottom: 1px solid #111827;
+  animation: fadeUp .3s ease; transition: all .15s;
+}
+.feed-item:hover { background: #0d131f; }
+.feed-item.approved { border-left: 3px solid var(--grn); }
+.feed-item.rejected { border-left: 3px solid var(--red); opacity: .5; }
+.feed-item.pending { border-left: 3px solid var(--org); }
+
+.feed-meta {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+}
+.feed-author { font-size: 11px; font-weight: 800; color: var(--bluel); }
+.feed-time { font-size: 10px; color: var(--t5); }
+.feed-type {
+  font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 8px;
+  text-transform: uppercase; letter-spacing: .5px;
+}
+.type-injury { background: var(--redbg); color: var(--redl); }
+.type-transaction { background: var(--purpbg); color: var(--purpl); }
+.type-benching { background: var(--orgbg); color: var(--orgl); }
+.type-promotion { background: var(--grnbg); color: var(--grnl); }
+.type-suspension { background: #451a03; color: #fb923c; }
+.type-return { background: var(--cyanbg); color: var(--cyanl); }
+.type-unknown { background: var(--bg3); color: var(--t4); }
+.type-portal { background: #1e1b4b; color: #818cf8; }
+.type-nil { background: #172554; color: #60a5fa; }
+.type-coaching { background: var(--cyanbg); color: var(--cyanl); }
+
+/* ── League Switcher ── */
+.league-sw{display:flex;background:var(--bg3);border:1px solid var(--bdr);border-radius:8px;padding:2px;gap:2px;margin-right:6px}
+.lg-btn{padding:5px 14px;border-radius:6px;border:none;background:none;color:var(--t5);font-size:11px;font-weight:800;cursor:pointer;transition:all .2s;letter-spacing:.3px}
+.lg-btn:hover{color:var(--t3)}
+.lg-btn.on{color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.lg-btn.nfl.on{background:linear-gradient(135deg,#ef4444,var(--org))}
+.lg-btn.ncaa.on{background:linear-gradient(135deg,var(--purp),#6d28d9)}
+.cat-portal { background: #1e1b4b; color: #818cf8; }
+
+
+.feed-text { font-size: 13px; color: var(--t2); line-height: 1.5; margin-bottom: 8px; }
+.feed-text a { color: var(--bluel); text-decoration: none; }
+.feed-text a:hover { text-decoration: underline; }
+
+.feed-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+.feed-tag {
+  font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 6px;
+  background: var(--bg3); color: var(--t4); border: 1px solid var(--bdr);
+}
+.feed-tag.team { color: var(--bluel); border-color: #1e40af; }
+.feed-tag.player { color: var(--grnl); border-color: #047857; }
+
+.feed-actions {
+  display: flex; gap: 6px; align-items: center;
+}
+.feed-btn {
+  padding: 4px 10px; border-radius: 6px; border: 1px solid var(--bdr);
+  background: var(--bg3); color: var(--t4); font-size: 10px; font-weight: 700;
+  cursor: pointer; transition: all .15s;
+}
+.feed-btn:hover { border-color: var(--t5); color: var(--t3); }
+.feed-btn.approve { border-color: #047857; color: var(--grnl); }
+.feed-btn.approve:hover { background: var(--grnbg); }
+.feed-btn.reject { border-color: #991b1b; color: var(--redl); }
+.feed-btn.reject:hover { background: var(--redbg); }
+.feed-btn.reclassify { border-color: #7c3aed40; color: var(--purpl); }
+
+/* ── Stats Bar ── */
+.stats-bar {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px; margin-bottom: 16px;
+}
+.stat-card {
+  background: var(--bg2); border: 1px solid var(--bdr); border-radius: 8px;
+  padding: 12px; text-align: center;
+}
+.stat-val { font-size: 22px; font-weight: 800; color: var(--t1); font-family: 'JetBrains Mono', monospace; }
+.stat-lbl { font-size: 10px; font-weight: 700; color: var(--t5); text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
+
+/* ── Import/Export ── */
+.import-zone {
+  border: 2px dashed var(--bdr); border-radius: 10px; padding: 24px;
+  text-align: center; cursor: pointer; transition: all .2s;
+}
+.import-zone:hover { border-color: var(--blue); background: #0c1525; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 24px; right: 24px; padding: 12px 20px;
+  background: var(--bg3); border: 1px solid var(--bdr); border-radius: 8px;
+  color: var(--t2); font-size: 12px; font-weight: 700; z-index: 999;
+  animation: fi .3s ease; box-shadow: 0 8px 32px rgba(0,0,0,.5);
+}
+
+/* ── Live indicator ── */
+.live-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: #ef4444;
+  animation: livePulse 1.5s infinite;
+}
+.live-badge {
+  display: flex; align-items: center; gap: 6px; font-size: 10px;
+  font-weight: 800; color: #ef4444; text-transform: uppercase; letter-spacing: .5px;
+}
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal {
+  background: var(--bg2); border: 1px solid var(--bdr); border-radius: 12px;
+  max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;
+  animation: fi .2s ease;
+}
+.modal-hdr {
+  padding: 16px 20px; border-bottom: 1px solid var(--bdr);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-body { padding: 20px; }
+.modal-close {
+  background: none; border: none; color: var(--t5); font-size: 18px; cursor: pointer;
+}
+.modal-close:hover { color: var(--t2); }
+
+/* ── Scrape Config ── */
+.config-row {
+  display: flex; gap: 12px; align-items: center; margin-bottom: 12px;
+}
+.config-label { font-size: 11px; font-weight: 700; color: var(--t3); min-width: 100px; }
+.config-input {
+  flex: 1; padding: 7px 10px; border-radius: 6px; border: 1px solid var(--bdr);
+  background: var(--bg); color: var(--t2); font-size: 12px; outline: none;
+}
+.config-input:focus { border-color: var(--blue); }
+select.config-input { cursor: pointer; }
+
+/* ── Team Grid ── */
+.team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px; }
+.team-chip {
+  padding: 6px 10px; border-radius: 6px; border: 1px solid var(--bdr);
+  background: var(--bg3); color: var(--t4); font-size: 10px; font-weight: 700;
+  cursor: pointer; transition: all .15s; text-align: center;
+}
+.team-chip:hover { border-color: var(--t5); color: var(--t3); }
+.team-chip.on { border-color: var(--blue); color: var(--bluel); background: var(--bluebg); }
+
+/* ── Tab Nav ── */
+.main-tabs {
+  display: flex; gap: 2px; margin-bottom: 16px; background: var(--bg2);
+  border: 1px solid var(--bdr); border-radius: 8px; padding: 3px; width: fit-content;
+}
+.main-tab {
+  padding: 7px 16px; border-radius: 6px; font-size: 11px; font-weight: 700;
+  color: var(--t5); cursor: pointer; transition: all .15s; border: none; background: none;
+}
+.main-tab:hover { color: var(--t3); }
+.main-tab.on { background: var(--bluebg); color: var(--bluel); }
+
+/* ── Text area ── */
+.ta {
+  width: 100%; min-height: 120px; padding: 10px; border-radius: 8px;
+  border: 1px solid var(--bdr); background: var(--bg); color: var(--t2);
+  font-size: 12px; font-family: 'JetBrains Mono', monospace; resize: vertical; outline: none;
+}
+.ta:focus { border-color: var(--blue); }
+.ta::placeholder { color: #283040; }
+
+/* ── Depth Chart Impact Preview ── */
+.impact-card {
+  background: var(--bg3); border: 1px solid var(--bdr); border-radius: 8px;
+  padding: 12px; margin-bottom: 8px;
+}
+.impact-team { font-size: 12px; font-weight: 800; color: var(--bluel); margin-bottom: 4px; }
+.impact-change { font-size: 11px; color: var(--t3); }
+.impact-arrow { color: var(--org); font-weight: 800; }
+
+/* ── Empty State ── */
+.empty-state {
+  padding: 60px 20px; text-align: center;
+}
+.empty-icon { font-size: 40px; margin-bottom: 12px; opacity: .3; }
+.empty-title { font-size: 16px; font-weight: 800; color: var(--t3); margin-bottom: 6px; }
+.empty-sub { font-size: 12px; color: var(--t5); max-width: 400px; margin: 0 auto; }
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<div class="hdr">
+  <div class="hdr-left" onclick="setState({view:'feed'})">
+    <div class="hdr-logo" id="hdrLogo">IW</div>
+    <div>
+      <div class="hdr-title">Intel Wire <span style="font-weight:400;color:var(--t5)">v1.1</span></div>
+      <div class="hdr-sub" id="hdrSub">NFL DEPTH CHART INTELLIGENCE · X FEED MONITOR</div>
+    </div>
+  </div>
+  <div class="hdr-btns">
+    <div class="league-sw">
+      <button class="lg-btn nfl on" onclick="switchLeague('nfl')">NFL</button>
+      <button class="lg-btn ncaa" onclick="switchLeague('ncaa')">NCAA</button>
+    </div>
+    <div id="liveIndicator" class="live-badge" style="display:none"><div class="live-dot"></div>SCANNING</div>
+    <button class="btn-sm" onclick="exportApproved()">📥 Export</button>
+    <button class="btn-sm" onclick="importState()">📤 Import</button>
+    <button class="btn-save" onclick="saveState()">💾 Save</button>
+  </div>
+</div>
+
+<!-- ── Main ── -->
+<div class="wrap" id="app"></div>
+
+<!-- ── Toast Container ── -->
+<div id="toastContainer"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   INTEL WIRE v1.1 — NFL + NCAA
+   X Feed Scraper for Depth Chart Intelligence
+   Built to integrate with Depth Chart Auditor v2.0
+   ═══════════════════════════════════════════════════════════════ */
+
+// ── NFL Teams (matches depth_chart CSV franchise_id mapping) ──
+const NFL_TEAMS = [
+  {id:1,name:"Arizona Cardinals",abbr:"ARI",short:"Cardinals"},
+  {id:2,name:"Atlanta Falcons",abbr:"ATL",short:"Falcons"},
+  {id:3,name:"Baltimore Ravens",abbr:"BAL",short:"Ravens"},
+  {id:4,name:"Buffalo Bills",abbr:"BUF",short:"Bills"},
+  {id:5,name:"Carolina Panthers",abbr:"CAR",short:"Panthers"},
+  {id:6,name:"Chicago Bears",abbr:"CHI",short:"Bears"},
+  {id:7,name:"Cincinnati Bengals",abbr:"CIN",short:"Bengals"},
+  {id:8,name:"Cleveland Browns",abbr:"CLE",short:"Browns"},
+  {id:9,name:"Dallas Cowboys",abbr:"DAL",short:"Cowboys"},
+  {id:10,name:"Denver Broncos",abbr:"DEN",short:"Broncos"},
+  {id:11,name:"Detroit Lions",abbr:"DET",short:"Lions"},
+  {id:12,name:"Green Bay Packers",abbr:"GB",short:"Packers"},
+  {id:13,name:"Houston Texans",abbr:"HOU",short:"Texans"},
+  {id:14,name:"Indianapolis Colts",abbr:"IND",short:"Colts"},
+  {id:15,name:"Jacksonville Jaguars",abbr:"JAX",short:"Jaguars"},
+  {id:16,name:"Kansas City Chiefs",abbr:"KC",short:"Chiefs"},
+  {id:17,name:"Miami Dolphins",abbr:"MIA",short:"Dolphins"},
+  {id:18,name:"Minnesota Vikings",abbr:"MIN",short:"Vikings"},
+  {id:19,name:"New England Patriots",abbr:"NE",short:"Patriots"},
+  {id:20,name:"New Orleans Saints",abbr:"NO",short:"Saints"},
+  {id:21,name:"New York Giants",abbr:"NYG",short:"Giants"},
+  {id:22,name:"New York Jets",abbr:"NYJ",short:"Jets"},
+  {id:23,name:"Las Vegas Raiders",abbr:"LV",short:"Raiders"},
+  {id:24,name:"Philadelphia Eagles",abbr:"PHI",short:"Eagles"},
+  {id:25,name:"Pittsburgh Steelers",abbr:"PIT",short:"Steelers"},
+  {id:26,name:"Los Angeles Rams",abbr:"LAR",short:"Rams"},
+  {id:27,name:"Los Angeles Chargers",abbr:"LAC",short:"Chargers"},
+  {id:28,name:"San Francisco 49ers",abbr:"SF",short:"49ers"},
+  {id:29,name:"Seattle Seahawks",abbr:"SEA",short:"Seahawks"},
+  {id:30,name:"Tampa Bay Buccaneers",abbr:"TB",short:"Buccaneers"},
+  {id:31,name:"Tennessee Titans",abbr:"TEN",short:"Titans"},
+  {id:32,name:"Washington Commanders",abbr:"WAS",short:"Commanders"}
+];
+
+// ── Active League ──
+let activeLeague = 'nfl'; // 'nfl' | 'ncaa'
+
+// ── NCAA Teams (matches depth_chart CSV franchise_id mapping) ──
+const NCAA_TEAMS = [
+  {id:103,name:"Alabama",abbr:"ALA",short:"Alabama",conf:"SEC"},
+  {id:109,name:"Arizona",abbr:"ARIZ",short:"Arizona",conf:"B12"},
+  {id:110,name:"Arizona State",abbr:"ASU",short:"Arizona St",conf:"B12"},
+  {id:111,name:"Arkansas",abbr:"ARK",short:"Arkansas",conf:"SEC"},
+  {id:115,name:"Auburn",abbr:"AUB",short:"Auburn",conf:"SEC"},
+  {id:118,name:"Baylor",abbr:"BAY",short:"Baylor",conf:"B12"},
+  {id:120,name:"Boise State",abbr:"BSU",short:"Boise St",conf:"MW"},
+  {id:121,name:"Boston College",abbr:"BC",short:"BC",conf:"ACC"},
+  {id:128,name:"BYU",abbr:"BYU",short:"BYU",conf:"B12"},
+  {id:130,name:"California",abbr:"CAL",short:"Cal",conf:"ACC"},
+  {id:138,name:"Cincinnati",abbr:"CINC",short:"Cincinnati",conf:"B12"},
+  {id:140,name:"Clemson",abbr:"CLEM",short:"Clemson",conf:"ACC"},
+  {id:143,name:"Colorado",abbr:"COLO",short:"Colorado",conf:"B12"},
+  {id:154,name:"Duke",abbr:"DUKE",short:"Duke",conf:"ACC"},
+  {id:163,name:"Florida",abbr:"FLA",short:"Florida",conf:"SEC"},
+  {id:167,name:"Florida State",abbr:"FSU",short:"Florida St",conf:"ACC"},
+  {id:169,name:"Fresno State",abbr:"FRES",short:"Fresno St",conf:"MW"},
+  {id:173,name:"Georgia",abbr:"UGA",short:"Georgia",conf:"SEC"},
+  {id:176,name:"Georgia Tech",abbr:"GT",short:"Ga Tech",conf:"ACC"},
+  {id:182,name:"Houston",abbr:"HOU",short:"Houston",conf:"B12"},
+  {id:187,name:"Illinois",abbr:"ILL",short:"Illinois",conf:"B1G"},
+  {id:190,name:"Indiana",abbr:"IU",short:"Indiana",conf:"B1G"},
+  {id:192,name:"Iowa",abbr:"IOWA",short:"Iowa",conf:"B1G"},
+  {id:193,name:"Iowa State",abbr:"ISU",short:"Iowa St",conf:"B12"},
+  {id:197,name:"James Madison",abbr:"JMU",short:"JMU",conf:"SBC"},
+  {id:198,name:"Kansas",abbr:"KU",short:"Kansas",conf:"B12"},
+  {id:199,name:"Kansas State",abbr:"KSU",short:"K-State",conf:"B12"},
+  {id:202,name:"Kentucky",abbr:"UK",short:"Kentucky",conf:"SEC"},
+  {id:210,name:"Louisville",abbr:"LOU",short:"Louisville",conf:"ACC"},
+  {id:211,name:"LSU",abbr:"LSU",short:"LSU",conf:"SEC"},
+  {id:215,name:"Maryland",abbr:"MD",short:"Maryland",conf:"B1G"},
+  {id:218,name:"Memphis",abbr:"MEM",short:"Memphis",conf:"AAC"},
+  {id:220,name:"Miami",abbr:"MIAF",short:"Miami",conf:"ACC"},
+  {id:222,name:"Michigan",abbr:"MICH",short:"Michigan",conf:"B1G"},
+  {id:223,name:"Michigan State",abbr:"MSU",short:"Michigan St",conf:"B1G"},
+  {id:225,name:"Minnesota",abbr:"MINN",short:"Minnesota",conf:"B1G"},
+  {id:226,name:"Ole Miss",abbr:"MISS",short:"Ole Miss",conf:"SEC"},
+  {id:227,name:"Mississippi State",abbr:"MSST",short:"Miss State",conf:"SEC"},
+  {id:229,name:"Missouri",abbr:"MIZ",short:"Missouri",conf:"SEC"},
+  {id:238,name:"Nebraska",abbr:"NEB",short:"Nebraska",conf:"B1G"},
+  {id:245,name:"North Carolina",abbr:"UNC",short:"UNC",conf:"ACC"},
+  {id:248,name:"NC State",abbr:"NCST",short:"NC State",conf:"ACC"},
+  {id:256,name:"Northwestern",abbr:"NW",short:"Northwestern",conf:"B1G"},
+  {id:258,name:"Notre Dame",abbr:"ND",short:"Notre Dame",conf:"ACC"},
+  {id:260,name:"Ohio State",abbr:"OSU",short:"Ohio State",conf:"B1G"},
+  {id:261,name:"Oklahoma",abbr:"OU",short:"Oklahoma",conf:"SEC"},
+  {id:262,name:"Oklahoma State",abbr:"OKST",short:"Oklahoma St",conf:"B12"},
+  {id:264,name:"Oregon",abbr:"ORE",short:"Oregon",conf:"B1G"},
+  {id:265,name:"Oregon State",abbr:"ORST",short:"Oregon St",conf:"IND"},
+  {id:266,name:"Penn State",abbr:"PSU",short:"Penn State",conf:"B1G"},
+  {id:268,name:"Pittsburgh",abbr:"PITT",short:"Pitt",conf:"ACC"},
+  {id:273,name:"Purdue",abbr:"PUR",short:"Purdue",conf:"B1G"},
+  {id:278,name:"Rutgers",abbr:"RUT",short:"Rutgers",conf:"B1G"},
+  {id:284,name:"San Diego State",abbr:"SDSU",short:"SDSU",conf:"MW"},
+  {id:287,name:"SMU",abbr:"SMU",short:"SMU",conf:"ACC"},
+  {id:289,name:"South Carolina",abbr:"SC",short:"S. Carolina",conf:"SEC"},
+  {id:300,name:"Stanford",abbr:"STAN",short:"Stanford",conf:"ACC"},
+  {id:304,name:"Syracuse",abbr:"SYR",short:"Syracuse",conf:"ACC"},
+  {id:305,name:"TCU",abbr:"TCU",short:"TCU",conf:"B12"},
+  {id:307,name:"Tennessee",abbr:"TENN",short:"Tennessee",conf:"SEC"},
+  {id:311,name:"Texas",abbr:"TEX",short:"Texas",conf:"SEC"},
+  {id:312,name:"Texas A&M",abbr:"TAMU",short:"Texas A&M",conf:"SEC"},
+  {id:315,name:"Texas Tech",abbr:"TTU",short:"Texas Tech",conf:"B12"},
+  {id:319,name:"Tulane",abbr:"TUL",short:"Tulane",conf:"AAC"},
+  {id:323,name:"UCF",abbr:"UCF",short:"UCF",conf:"B12"},
+  {id:324,name:"UCLA",abbr:"UCLA",short:"UCLA",conf:"B1G"},
+  {id:325,name:"UNLV",abbr:"UNLV",short:"UNLV",conf:"MW"},
+  {id:326,name:"USC",abbr:"USC",short:"USC",conf:"B1G"},
+  {id:327,name:"USF",abbr:"USF",short:"USF",conf:"AAC"},
+  {id:328,name:"Utah",abbr:"UTAH",short:"Utah",conf:"B12"},
+  {id:331,name:"UTSA",abbr:"UTSA",short:"UTSA",conf:"AAC"},
+  {id:333,name:"Vanderbilt",abbr:"VAN",short:"Vanderbilt",conf:"SEC"},
+  {id:335,name:"Virginia",abbr:"UVA",short:"Virginia",conf:"ACC"},
+  {id:337,name:"Virginia Tech",abbr:"VT",short:"Va Tech",conf:"ACC"},
+  {id:339,name:"Wake Forest",abbr:"WF",short:"Wake Forest",conf:"ACC"},
+  {id:340,name:"Washington",abbr:"UW",short:"Washington",conf:"B1G"},
+  {id:341,name:"Washington State",abbr:"WSU",short:"Wazzu",conf:"IND"},
+  {id:343,name:"West Virginia",abbr:"WVU",short:"WVU",conf:"B12"},
+  {id:346,name:"Western Kentucky",abbr:"WKU",short:"WKU",conf:"SBC"},
+  {id:349,name:"Wisconsin",abbr:"WIS",short:"Wisconsin",conf:"B1G"},
+  {id:351,name:"Wyoming",abbr:"WYO",short:"Wyoming",conf:"MW"},
+  {id:108,name:"Appalachian State",abbr:"APP",short:"App State",conf:"SBC"},
+  {id:318,name:"Troy",abbr:"TROY",short:"Troy",conf:"SBC"},
+  {id:321,name:"UAB",abbr:"UAB",short:"UAB",conf:"AAC"}
+];
+
+const NCAA_CONFS = {SEC:"SEC",B1G:"Big Ten",B12:"Big 12",ACC:"ACC",AAC:"American",MW:"Mountain West",SBC:"Sun Belt",IND:"Ind."};
+
+// ── NCAA Intel Types ──
+const NCAA_INTEL_TYPES = {
+  injury: { label: "Injury", cls: "type-injury", keywords: ["injury","injured","ACL","MCL","concussion","questionable","doubtful","out","DNP","surgery","MRI","season-ending","carted","limited"] },
+  portal: { label: "Portal", cls: "type-portal", keywords: ["transfer portal","portal","entered the portal","committed","commits to","decommit","decommitted","flipped","official visit","OV","portal entry","withdrew from portal","left the portal","portal pickup"] },
+  transaction: { label: "Signing", cls: "type-transaction", keywords: ["signed","signing","NLI","national letter of intent","scholarship","offer","commit","verbal commit","waiver","declared","early entrant","super senior"] },
+  benching: { label: "Benching", cls: "type-benching", keywords: ["benched","demoted","depth chart","starter","will start","named starter","QB1","competition","earned the start","position change"] },
+  promotion: { label: "Promotion", cls: "type-promotion", keywords: ["promoted","elevated","cleared","medically cleared","expected to play","will play","back at practice","available","upgraded"] },
+  suspension: { label: "Suspension", cls: "type-suspension", keywords: ["suspended","dismissed","kicked off","removed from team","team rules","violation","arrested","ineligible","NCAA violation"] },
+  nil: { label: "NIL", cls: "type-nil", keywords: ["NIL","name image likeness","NIL deal","NIL collective","collective","tampering","inducement"] },
+  coaching: { label: "Coaching", cls: "type-coaching", keywords: ["coaching change","fired","hired","new coach","coordinator","head coach","OC","DC","contract extension","buyout"] }
+};
+
+// ── NCAA Sources (402 from CFB beat reporters list) ──
+const NCAA_SOURCES_RAW = [
+  // National insiders
+  {h:"PeteThamel",cat:"insider",teams:[]},{h:"Brett_McMurphy",cat:"insider",teams:[]},{h:"BruceFeldmanCFB",cat:"insider",teams:[]},{h:"ESPNRittenberg",cat:"insider",teams:[]},{h:"aadelsonESPN",cat:"insider",teams:[]},{h:"slmandel",cat:"insider",teams:[]},{h:"AndyStaples",cat:"insider",teams:[]},{h:"ChrisVannini",cat:"insider",teams:[]},{h:"JoshPateCFB",cat:"insider",teams:[]},{h:"PaulMyerberg",cat:"insider",teams:[]},{h:"DougLesmerises",cat:"insider",teams:[]},{h:"max_olson",cat:"insider",teams:[]},{h:"mzenitz",cat:"insider",teams:[]},{h:"chris_hummer",cat:"insider",teams:[]},{h:"JTalty",cat:"insider",teams:[]},{h:"RJ_CFB",cat:"insider",teams:[]},{h:"Shehan_Jeyarajah",cat:"insider",teams:[]},{h:"YahooForde",cat:"insider",teams:[]},{h:"RalphDRussoAP",cat:"insider",teams:[]},{h:"MattRittenberg",cat:"insider",teams:[]},{h:"faborwitzCFB",cat:"insider",teams:[]},{h:"BarrettSallee",cat:"insider",teams:[]},{h:"CFTalk",cat:"insider",teams:[]},
+  // Portal & recruiting
+  {h:"RivalsPortal",cat:"portal",teams:[]},{h:"RivalsHS",cat:"portal",teams:[]},{h:"247Sports",cat:"portal",teams:[]},{h:"clairemtrades",cat:"portal",teams:[]},{h:"GunslingerBuzz",cat:"portal",teams:[]},{h:"SeanFitzOn3",cat:"portal",teams:[]},{h:"ChadSimmons_",cat:"portal",teams:[]},{h:"TomLoy247",cat:"portal",teams:[]},{h:"RustyMansell_",cat:"portal",teams:[]},{h:"BudElliott3",cat:"portal",teams:[]},{h:"rivalskeenan",cat:"portal",teams:[]},{h:"MSwain247",cat:"portal",teams:[]},{h:"CodyNagel247",cat:"portal",teams:[]},{h:"NathanKing247",cat:"portal",teams:[]},{h:"WSN_247Sports",cat:"portal",teams:[]},{h:"PaulJonesOn3",cat:"portal",teams:[]},{h:"TreyBiddy",cat:"portal",teams:[]},{h:"RyanCallahan247",cat:"portal",teams:[]},{h:"HayesFawcett",cat:"portal",teams:[]},{h:"PeteNakos_",cat:"portal",teams:[]},{h:"CollegeFBPortal",cat:"portal",teams:[]},{h:"Rivals",cat:"portal",teams:[]},{h:"On3sports",cat:"portal",teams:[]},{h:"mikerodak",cat:"portal",teams:[]},
+  // Analysts
+  {h:"Unabated_CFB",cat:"analyst",teams:[]},{h:"CFFNate",cat:"analyst",teams:[]},{h:"wilnerhotline",cat:"analyst",teams:[]},{h:"NoEscalators",cat:"analyst",teams:[]},{h:"HustleBelt",cat:"analyst",teams:[]},
+  // SEC beat
+  {h:"CecilHurt",cat:"reporter",teams:["ALA"]},{h:"HankSouth247",cat:"reporter",teams:["ALA"]},{h:"SethWEmerson",cat:"reporter",teams:["UGA"]},{h:"AnthonyDasher1",cat:"reporter",teams:["UGA"]},{h:"marcweiszer",cat:"reporter",teams:["UGA"]},{h:"bmarcello",cat:"reporter",teams:["AUB"]},{h:"JFergusonAU",cat:"reporter",teams:["AUB"]},{h:"CClemente247",cat:"reporter",teams:["AUB"]},{h:"ArkansasOn247",cat:"reporter",teams:["ARK"]},{h:"NWAHutch",cat:"reporter",teams:["ARK"]},{h:"osgators",cat:"reporter",teams:["FLA"]},{h:"GrahamHall",cat:"reporter",teams:["FLA"]},{h:"BKubena",cat:"reporter",teams:["TAMU"]},{h:"billyliucci",cat:"reporter",teams:["TAMU"]},{h:"TexAgs",cat:"reporter",teams:["TAMU"]},{h:"audsnyder4",cat:"reporter",teams:["TAMU"]},{h:"BrentZwerneman",cat:"reporter",teams:["TAMU"]},{h:"HornSports",cat:"reporter",teams:["TEX"]},{h:"SamBlum3",cat:"reporter",teams:["TEX"]},{h:"GregLuca",cat:"reporter",teams:["TEX"]},{h:"dctf",cat:"reporter",teams:["TEX"]},{h:"JeffHoweOTF",cat:"reporter",teams:["TEX"]},{h:"LSUFreek",cat:"reporter",teams:["LSU"]},{h:"KristianGaric",cat:"reporter",teams:["LSU"]},{h:"Dave_Matter",cat:"reporter",teams:["MIZ"]},{h:"PowerMizzoucom",cat:"reporter",teams:["MIZ"]},{h:"JonHale_HL",cat:"reporter",teams:["UK"]},{h:"JDrumUK",cat:"reporter",teams:["UK"]},{h:"joerexrode",cat:"reporter",teams:["TENN"]},{h:"AdamSparks",cat:"reporter",teams:["TENN"]},{h:"RCorySmith",cat:"reporter",teams:["SC"]},{h:"theJJPerez",cat:"reporter",teams:["SC"]},{h:"BillyEmbody",cat:"reporter",teams:["VAN"]},{h:"johnehoover",cat:"reporter",teams:["OU"]},{h:"SoonerScoop",cat:"reporter",teams:["OU"]},{h:"byAustinMeek",cat:"reporter",teams:["OU"]},
+  // Big Ten beat
+  {h:"247Wolverine",cat:"reporter",teams:["MICH"]},{h:"Balas_Wolverine",cat:"reporter",teams:["MICH"]},{h:"chengelis",cat:"reporter",teams:["MICH"]},{h:"PennStateOn3",cat:"reporter",teams:["PSU"]},{h:"benmoore247",cat:"reporter",teams:["PSU"]},{h:"BentonASmith",cat:"reporter",teams:["OSU"]},{h:"BCrawford247",cat:"reporter",teams:["OSU"]},{h:"BillLandis25",cat:"reporter",teams:["OSU"]},{h:"TLdlevarse",cat:"reporter",teams:["ORE"]},{h:"JamesCrepea",cat:"reporter",teams:["ORE"]},{h:"MattPrehm",cat:"reporter",teams:["ORE"]},{h:"RyanKartje",cat:"reporter",teams:["USC"]},{h:"StillMikeBarber",cat:"reporter",teams:["USC"]},{h:"mikevorel",cat:"reporter",teams:["UW"]},{h:"ChrisKarpman",cat:"reporter",teams:["UW"]},{h:"swmckewonOWH",cat:"reporter",teams:["NEB"]},{h:"Husker247BC",cat:"reporter",teams:["NEB"]},{h:"steven_sipple",cat:"reporter",teams:["NEB"]},{h:"GopherReport247",cat:"reporter",teams:["MINN"]},{h:"Marcus_R_Fuller",cat:"reporter",teams:["MINN"]},{h:"Joshua_Newman",cat:"reporter",teams:["MSU"]},{h:"DavidEickholt",cat:"reporter",teams:["MSU"]},{h:"BrodyAMiller",cat:"reporter",teams:["IOWA"]},{h:"ZachHeilprin",cat:"reporter",teams:["WIS"]},{h:"Jon_Blau",cat:"reporter",teams:["IU"]},{h:"DustinDopirak",cat:"reporter",teams:["IU"]},{h:"GoldandBlackcom",cat:"reporter",teams:["PUR"]},{h:"BobAsmussen",cat:"reporter",teams:["ILL"]},{h:"evan_b",cat:"reporter",teams:["RUT"]},{h:"MichaelLKatz",cat:"reporter",teams:["MD"]},{h:"PeteSampson_",cat:"reporter",teams:["ND"]},{h:"DDuggan21",cat:"reporter",teams:["ND"]},
+  // ACC beat
+  {h:"GoTigers247",cat:"reporter",teams:["CLEM"]},{h:"ClemsonTigerNet",cat:"reporter",teams:["CLEM"]},{h:"LarryWilliamsTI",cat:"reporter",teams:["CLEM"]},{h:"mctait",cat:"reporter",teams:["CLEM"]},{h:"cmsilvajr",cat:"reporter",teams:["MIAF"]},{h:"Manny_Navarro",cat:"reporter",teams:["MIAF"]},{h:"ChristyChirinos",cat:"reporter",teams:["MIAF"]},{h:"AJTarHeel247",cat:"reporter",teams:["UNC"]},{h:"gmraynor",cat:"reporter",teams:["NCST"]},{h:"EricKellyTV",cat:"reporter",teams:["FSU"]},{h:"chrissolari",cat:"reporter",teams:["FSU"]},{h:"DavidHallVP",cat:"reporter",teams:["VT"]},{h:"brettvito",cat:"reporter",teams:["VT"]},{h:"Stephen_Bailey1",cat:"reporter",teams:["LOU"]},{h:"JPGroves",cat:"reporter",teams:["GT"]},{h:"ASaunders_PGH",cat:"reporter",teams:["PITT"]},{h:"ConorONeill_DI",cat:"reporter",teams:["SYR"]},{h:"Cavs_Corner",cat:"reporter",teams:["UVA"]},{h:"Stanford_247",cat:"reporter",teams:["STAN"]},
+  // Big 12 beat
+  {h:"BYU247",cat:"reporter",teams:["BYU"]},{h:"Mitch_Harper",cat:"reporter",teams:["BYU"]},{h:"jasonscheer",cat:"reporter",teams:["ARIZ"]},{h:"MichaelJLev",cat:"reporter",teams:["ARIZ"]},{h:"DevilsDigest",cat:"reporter",teams:["ASU"]},{h:"RedRaiderSports",cat:"reporter",teams:["TTU"]},{h:"BrentBriggeman",cat:"reporter",teams:["KSU"]},{h:"Frogs247",cat:"reporter",teams:["TCU"]},{h:"Sheadixon",cat:"reporter",teams:["BAY"]},{h:"JordanStrack",cat:"reporter",teams:["COLO"]},{h:"BrianHowell33",cat:"reporter",teams:["COLO"]},{h:"Peter_Baugh",cat:"reporter",teams:["COLO"]},{h:"MrChadBishop",cat:"reporter",teams:["WVU"]},{h:"DannyWest247",cat:"reporter",teams:["WVU"]},{h:"TravisHines21",cat:"reporter",teams:["ISU"]},{h:"EricBaileyTW",cat:"reporter",teams:["OKST"]},{h:"khobi_price",cat:"reporter",teams:["UCF"]},{h:"JordanDavisHill",cat:"reporter",teams:["HOU"]},
+  // G5 & other
+  {h:"BJRains",cat:"reporter",teams:["BSU"]},{h:"FresnoState247",cat:"reporter",teams:["FRES"]},{h:"TheoLawson_SR",cat:"reporter",teams:["WSU"]},{h:"nickdaschel",cat:"reporter",teams:["ORST"]},
+  // Bulk remaining (national/untagged)
+  {h:"Reed_Smith25",cat:"reporter",teams:[]},{h:"TJOxley1",cat:"reporter",teams:[]},{h:"TheKevinFielder",cat:"reporter",teams:[]},{h:"CBooher_",cat:"reporter",teams:[]},{h:"ByCoryDiaz",cat:"reporter",teams:[]},{h:"andybackstrom",cat:"reporter",teams:[]},{h:"AndrewAbadie",cat:"reporter",teams:[]},{h:"JMacDonaldSport",cat:"reporter",teams:[]},{h:"Eddie_Herz",cat:"reporter",teams:[]},{h:"ScottieBordelon",cat:"reporter",teams:[]},{h:"JacobRudner",cat:"reporter",teams:[]},{h:"LGonTV",cat:"reporter",teams:[]},{h:"KyleDeckelbaum",cat:"reporter",teams:[]},{h:"JoshMooreHL",cat:"reporter",teams:[]},{h:"PhilBergman_",cat:"reporter",teams:[]},{h:"mwenzel2",cat:"reporter",teams:[]},{h:"KeganReneau",cat:"reporter",teams:[]},{h:"NBond0910",cat:"reporter",teams:[]},{h:"JordanGuskey",cat:"reporter",teams:[]},{h:"therealBeede",cat:"reporter",teams:[]},{h:"SpokesmanClark",cat:"reporter",teams:[]},{h:"_NickKelly",cat:"reporter",teams:[]},{h:"CareyAMurdock",cat:"reporter",teams:[]},{h:"EricCHenry_",cat:"reporter",teams:[]},{h:"Keff_C",cat:"reporter",teams:[]},{h:"rwweinstein",cat:"reporter",teams:[]},{h:"GeorgeStoia",cat:"reporter",teams:[]},{h:"Corey_Bender",cat:"reporter",teams:[]},{h:"romanstubbs",cat:"reporter",teams:[]},{h:"brian_calloway",cat:"reporter",teams:[]},{h:"RyanJYoung",cat:"reporter",teams:[]},{h:"BillyWessels",cat:"reporter",teams:[]},{h:"EmilyGiam",cat:"reporter",teams:[]},{h:"Mike_Uva",cat:"reporter",teams:[]},{h:"AdrianBroaddus",cat:"reporter",teams:[]},{h:"glenwest21",cat:"reporter",teams:[]},{h:"Les_Johns",cat:"reporter",teams:[]},{h:"cj_teague",cat:"reporter",teams:[]},{h:"MikeLucasTV",cat:"reporter",teams:[]},{h:"JesseSBSN",cat:"reporter",teams:[]},{h:"afkostka",cat:"reporter",teams:[]},{h:"tbhorka",cat:"reporter",teams:[]},{h:"ByNickFarrell",cat:"reporter",teams:[]},{h:"kylegrbwsk",cat:"reporter",teams:[]},{h:"rydunleavy",cat:"reporter",teams:[]},{h:"GrantTraylor",cat:"reporter",teams:[]},{h:"davidscott14",cat:"reporter",teams:[]},{h:"NicoHaeflinger",cat:"reporter",teams:[]},{h:"mikejschaefer",cat:"reporter",teams:[]},{h:"Travis_L_Brown",cat:"reporter",teams:[]},{h:"ThomasGoldkamp",cat:"reporter",teams:[]},{h:"JorshP",cat:"reporter",teams:[]},{h:"D_Farmer",cat:"reporter",teams:[]},{h:"JoshTheAthletic",cat:"reporter",teams:[]},{h:"ZacBoyer",cat:"reporter",teams:[]},{h:"Charlie_Potter",cat:"reporter",teams:[]},{h:"Eddie_Rado",cat:"reporter",teams:[]},{h:"Riley_Gates",cat:"reporter",teams:[]},{h:"ryaber",cat:"reporter",teams:[]},{h:"JoeArrigo_",cat:"reporter",teams:[]},{h:"byBDavis",cat:"reporter",teams:[]},{h:"ByChrisMurray",cat:"reporter",teams:[]},{h:"Alexis_Cubit",cat:"reporter",teams:[]},{h:"ChrisFisher248",cat:"reporter",teams:[]},{h:"SteveVirgen",cat:"reporter",teams:[]},{h:"ArielleOrsuto",cat:"reporter",teams:[]},{h:"Ben_Jones88",cat:"reporter",teams:[]},{h:"AmeliaRayno",cat:"reporter",teams:[]},{h:"mlananna",cat:"reporter",teams:[]},{h:"DentonRC",cat:"reporter",teams:[]},{h:"ChristianCaple",cat:"reporter",teams:[]},{h:"BrennaGreene_",cat:"reporter",teams:[]},{h:"jaypo1961",cat:"reporter",teams:[]},{h:"parrishalford",cat:"reporter",teams:[]},{h:"sjnard",cat:"reporter",teams:[]}
+];
+
+const NCAA_TOP_INSIDERS = ['PeteThamel','Brett_McMurphy','BruceFeldmanCFB','ESPNRittenberg','aadelsonESPN','RivalsPortal','247Sports','mzenitz','chris_hummer','HayesFawcett','max_olson','ChrisVannini','JoshPateCFB','PeteNakos_','JTalty','slmandel'];
+
+// ── Source Categories ──
+const CATEGORIES = {
+  reporter: { label: "Beat Reporter", cls: "cat-reporter", desc: "Team beat writers for newspapers, websites" },
+  team: { label: "Team Account", cls: "cat-team", desc: "Official NFL team accounts & PR" },
+  insider: { label: "NFL Insider", cls: "cat-insider", desc: "National NFL insiders (Schefter, Rapoport, etc.)" },
+  analyst: { label: "Analyst", cls: "cat-analyst", desc: "Film/analytics accounts (PFF, etc.)" },
+  league: { label: "League/Media", cls: "cat-league", desc: "NFL official, networks, league media" },
+  portal: { label: "Portal/Recruit", cls: "cat-portal", desc: "Transfer portal & recruiting trackers" },
+  other: { label: "Other", cls: "cat-other", desc: "Uncategorized" }
+};
+
+// ── Intel Types (what we're scraping for) ──
+const INTEL_TYPES = {
+  injury: { label: "Injury", cls: "type-injury", keywords: ["injury","injured","hurt","knee","ACL","MCL","ankle","hamstring","concussion","shoulder","torn","surgery","IR","injured reserve","questionable","doubtful","out","DNP","limited","full practice","did not practice","hammy","quad","calf","groin","back","ribs","wrist","thumb","finger","fracture","sprain","strain","broken","dislocated","MRI","X-ray","xray","setback","aggravated","reaggravated","day-to-day","week-to-week","multi-week","season-ending","placed on IR","moved to IR","carted off","left the game","walking boot","crutches","sling","brace","scope","arthroscopic","torn labrum","torn meniscus","high ankle","turf toe"] },
+  transaction: { label: "Transaction", cls: "type-transaction", keywords: ["trade","traded","signed","signing","released","waived","cut","claimed","free agent","FA","restructure","extension","contract","deal","agreed to terms","practice squad","PS","elevated","promoted","53-man","active roster","roster move","acquired","picked up","franchise tag","tagged","designated","tender","UDFA","undrafted","draft pick","compensatory","comp pick","cap space","cap hit","dead money","void years","incentives","guaranteed","fully guaranteed"] },
+  benching: { label: "Benching", cls: "type-benching", keywords: ["benched","demoted","lost starting job","backup","second string","depth chart","starter","starting","will start","named starter","QB1","QB2","RB1","WR1","CB1","rotating","platoon","timeshare","lost his job","replaced by","taking over","competition","won the job","earned the start","moved to","switched to"] },
+  promotion: { label: "Promotion", cls: "type-promotion", keywords: ["promoted","called up","elevated","activated","reinstated","returned to practice","designated to return","opened window","back at practice","cleared","medically cleared","full go","no restrictions","ahead of schedule","expected to play","will play","good to go","green light","taken off","removed from"] },
+  suspension: { label: "Suspension", cls: "type-suspension", keywords: ["suspended","suspension","conduct","PED","substance abuse","gambling","domestic","personal conduct","commissioner","exempt list","banned","indefinitely","game suspension","6-game","4-game","violation"] },
+  retirement: { label: "Ret/Hold", cls: "type-unknown", keywords: ["retired","retirement","holdout","holding out","reporting","reported","camp","training camp","showed up","absent","unexcused","excused absence","opt out","opted out","stepped away","leave of absence","personal reasons"] }
+};
+
+// ── Curated Source List (scraped from @OnChainTDs following) ──
+// Categories auto-classified based on handle patterns + manual overrides
+const SOURCES_RAW = [
+  // ─── NFL INSIDERS (National) ───
+  {h:"AdamSchefter",cat:"insider",teams:[]},
+  {h:"RapSheet",cat:"insider",teams:[]},
+  {h:"TomPelissero",cat:"insider",teams:[]},
+  {h:"FieldYates",cat:"insider",teams:[]},
+  {h:"JosinaAnderson",cat:"insider",teams:[]},
+  {h:"DMRussini",cat:"insider",teams:[]},
+  {h:"CharlesRobinson",cat:"insider",teams:[]},
+  {h:"JasonLaCanfora",cat:"insider",teams:[]},
+  {h:"MikeGarafolo",cat:"insider",teams:[]},
+  {h:"JayGlazer",cat:"insider",teams:[]},
+  {h:"DanGrazianoESPN",cat:"insider",teams:[]},
+  {h:"JFowlerESPN",cat:"insider",teams:[]},
+  {h:"JimTrotter_NFL",cat:"insider",teams:[]},
+  {h:"DiannaESPN",cat:"insider",teams:[]},
+  {h:"JennyVrentas",cat:"insider",teams:[]},
+  {h:"JeffDarlington",cat:"insider",teams:[]},
+  {h:"MikeWellsNFL",cat:"insider",teams:[]},
+  {h:"TerryMcCormick",cat:"insider",teams:[]},
+  {h:"PaulKuharskyNFL",cat:"insider",teams:[]},
+  {h:"greggrosenthal",cat:"insider",teams:[]},
+  {h:"JarrettBell",cat:"insider",teams:[]},
+  {h:"BruceFeldmanCFB",cat:"insider",teams:[]},
+  
+  // ─── LEAGUE & MEDIA ───
+  {h:"NFL345",cat:"league",teams:[]},
+  {h:"ESPNNFL",cat:"league",teams:[]},
+  {h:"NFLMedia",cat:"league",teams:[]},
+  {h:"NFLFilms",cat:"league",teams:[]},
+  {h:"theMMQB",cat:"league",teams:[]},
+  {h:"SNFonNBC",cat:"league",teams:[]},
+  {h:"NFLonCBS",cat:"league",teams:[]},
+  {h:"NFLonFOX",cat:"league",teams:[]},
+  {h:"AP_NFL",cat:"league",teams:[]},
+  {h:"NFLLegacy",cat:"league",teams:[]},
+  {h:"PFF",cat:"analyst",teams:[]},
+  {h:"PFF_NateJahnke",cat:"analyst",teams:[]},
+  {h:"CollinsworthPFF",cat:"analyst",teams:[]},
+  {h:"SharpFootball",cat:"analyst",teams:[]},
+  {h:"NFLDraftStudy",cat:"analyst",teams:[]},
+  {h:"gregcosell",cat:"analyst",teams:[]},
+  {h:"LanceZierlein",cat:"analyst",teams:[]},
+  {h:"MelKiperESPN",cat:"analyst",teams:[]},
+  {h:"McShay13",cat:"analyst",teams:[]},
+  {h:"LRiddickESPN",cat:"analyst",teams:[]},
+  {h:"JawsCEOQB",cat:"analyst",teams:[]},
+  {h:"MikeMayock",cat:"analyst",teams:[]},
+  {h:"FourVerts",cat:"analyst",teams:[]},
+  {h:"JCohen_NFL",cat:"analyst",teams:[]},
+  {h:"MarkSchofield",cat:"analyst",teams:[]},
+  {h:"ScottBarrettDFB",cat:"analyst",teams:[]},
+  {h:"MikeTagliereNFL",cat:"analyst",teams:[]},
+  {h:"JoeyPigskins",cat:"analyst",teams:[]},
+  {h:"DannyBKelly",cat:"analyst",teams:[]},
+  {h:"Jason_OTC",cat:"analyst",teams:[]},
+  {h:"AdamSchein",cat:"analyst",teams:[]},
+  {h:"miketirico",cat:"league",teams:[]},
+  {h:"PatKirwan_NFL",cat:"analyst",teams:[]},
+  {h:"AndrewSiciliano",cat:"league",teams:[]},
+  {h:"WilliamsonNFL",cat:"analyst",teams:[]},
+  {h:"danpompei",cat:"analyst",teams:[]},
+  {h:"DonBanks",cat:"analyst",teams:[]},
+  {h:"markschlereth",cat:"analyst",teams:[]},
+  {h:"ChrisBurkeNFL",cat:"analyst",teams:[]},
+  {h:"wingoz",cat:"analyst",teams:[]},
+  {h:"bykevinclark",cat:"analyst",teams:[]},
+  {h:"ByJimCorbett",cat:"league",teams:[]},
+  
+  // ─── TEAM OFFICIAL ACCOUNTS ───
+  {h:"AZCardinals",cat:"team",teams:["ARI"]},
+  {h:"AtlantaFalcons",cat:"team",teams:["ATL"]},
+  {h:"Ravens",cat:"team",teams:["BAL"]},
+  {h:"BuffaloBills",cat:"team",teams:["BUF"]},
+  {h:"Panthers",cat:"team",teams:["CAR"]},
+  {h:"ChicagoBears",cat:"team",teams:["CHI"]},
+  {h:"Bengals",cat:"team",teams:["CIN"]},
+  {h:"Browns",cat:"team",teams:["CLE"]},
+  {h:"dallascowboys",cat:"team",teams:["DAL"]},
+  {h:"Broncos",cat:"team",teams:["DEN"]},
+  {h:"Lions",cat:"team",teams:["DET"]},
+  {h:"packers",cat:"team",teams:["GB"]},
+  {h:"HoustonTexans",cat:"team",teams:["HOU"]},
+  {h:"Colts",cat:"team",teams:["IND"]},
+  {h:"Jaguars",cat:"team",teams:["JAX"]},
+  {h:"Chiefs",cat:"team",teams:["KC"]},
+  {h:"MiamiDolphins",cat:"team",teams:["MIA"]},
+  {h:"Vikings",cat:"team",teams:["MIN"]},
+  {h:"Patriots",cat:"team",teams:["NE"]},
+  {h:"Saints",cat:"team",teams:["NO"]},
+  {h:"Giants",cat:"team",teams:["NYG"]},
+  {h:"nyjets",cat:"team",teams:["NYJ"]},
+  {h:"Raiders",cat:"team",teams:["LV"]},
+  {h:"Eagles",cat:"team",teams:["PHI"]},
+  {h:"steelers",cat:"team",teams:["PIT"]},
+  {h:"RamsNFL",cat:"team",teams:["LAR"]},
+  {h:"chargers",cat:"team",teams:["LAC"]},
+  {h:"49ers",cat:"team",teams:["SF"]},
+  {h:"Seahawks",cat:"team",teams:["SEA"]},
+  {h:"Buccaneers",cat:"team",teams:["TB"]},
+  {h:"Titans",cat:"team",teams:["TEN"]},
+  {h:"Commanders",cat:"team",teams:["WAS"]},
+  {h:"JaguarsPR",cat:"team",teams:["JAX"]},
+  
+  // ─── BEAT REPORTERS BY TEAM ───
+  // ARI
+  {h:"mikejurecki",cat:"reporter",teams:["ARI"]},
+  {h:"PHNX_Cardinals",cat:"reporter",teams:["ARI"]},
+  {h:"AZCardsInsiders",cat:"reporter",teams:["ARI"]},
+  {h:"Alden_Gonzalez",cat:"reporter",teams:["ARI"]},
+  {h:"ZoneTracks",cat:"reporter",teams:["ARI"]},
+  // ATL
+  {h:"D_Led",cat:"reporter",teams:["ATL"]},
+  {h:"taborstreet",cat:"reporter",teams:["ATL"]},
+  {h:"DOrlandoAJC",cat:"reporter",teams:["ATL"]},
+  {h:"JasonHWeather",cat:"reporter",teams:["ATL"]},
+  // BAL
+  {h:"BaltSunSports",cat:"reporter",teams:["BAL"]},
+  {h:"jaborwitzNFL",cat:"reporter",teams:["BAL"]},
+  {h:"RyanMink",cat:"reporter",teams:["BAL"]},
+  {h:"DanielOyefusi",cat:"reporter",teams:["BAL"]},
+  // BUF
+  {h:"billsupdates",cat:"reporter",teams:["BUF"]},
+  {h:"alexbrasky",cat:"reporter",teams:["BUF"]},
+  {h:"JoeBuscaglia",cat:"reporter",teams:["BUF"]},
+  {h:"SalSports",cat:"reporter",teams:["BUF"]},
+  {h:"Marcel_LJ",cat:"reporter",teams:["BUF"]},
+  {h:"MadGlab",cat:"reporter",teams:["BUF"]},
+  // CAR
+  {h:"alexzietlow05",cat:"reporter",teams:["CAR"]},
+  {h:"sheaborhon",cat:"reporter",teams:["CAR"]},
+  {h:"josephperson",cat:"reporter",teams:["CAR"]},
+  {h:"daringantt",cat:"reporter",teams:["CAR"]},
+  // CHI
+  {h:"AdamHoge",cat:"reporter",teams:["CHI"]},
+  {h:"CourtneyRCronin",cat:"reporter",teams:["CHI"]},
+  {h:"BradBiggs",cat:"reporter",teams:["CHI"]},
+  {h:"JasonLieser",cat:"reporter",teams:["CHI"]},
+  // CIN
+  {h:"paulzarux",cat:"reporter",teams:["CIN"]},
+  {h:"BenBaby",cat:"reporter",teams:["CIN"]},
+  {h:"JayMorrisonATH",cat:"reporter",teams:["CIN"]},
+  // CLE
+  {h:"MaryKayCabot",cat:"reporter",teams:["CLE"]},
+  {h:"ScottPetrak",cat:"reporter",teams:["CLE"]},
+  {h:"ByChrisMason",cat:"reporter",teams:["CLE"]},
+  // DAL
+  {h:"dmn_cowboys",cat:"reporter",teams:["DAL"]},
+  {h:"BloggingTheBoys",cat:"reporter",teams:["DAL"]},
+  {h:"toddarcher",cat:"reporter",teams:["DAL"]},
+  {h:"DavidHelman_",cat:"reporter",teams:["DAL"]},
+  {h:"RJOchoaProTB",cat:"reporter",teams:["DAL"]},
+  {h:"NickHarrisFWST",cat:"reporter",teams:["DAL"]},
+  // DEN
+  {h:"mikeklis9news",cat:"reporter",teams:["DEN"]},
+  {h:"mikeklis",cat:"reporter",teams:["DEN"]},
+  {h:"ZacStevensDNVR",cat:"reporter",teams:["DEN"]},
+  {h:"NickKosmider",cat:"reporter",teams:["DEN"]},
+  {h:"PostBroncos",cat:"reporter",teams:["DEN"]},
+  {h:"Jeff_Legwold",cat:"reporter",teams:["DEN"]},
+  // DET
+  {h:"Kyle_Meinke",cat:"reporter",teams:["DET"]},
+  {h:"taborstreet",cat:"reporter",teams:["DET"]},
+  // GB
+  {h:"BillHuberNFL",cat:"reporter",teams:["GB"]},
+  {h:"WillRagatz",cat:"reporter",teams:["GB"]},
+  {h:"RobDemovsky",cat:"reporter",teams:["GB"]},
+  {h:"AaronNagler",cat:"reporter",teams:["GB"]},
+  {h:"mattschneidman",cat:"reporter",teams:["GB"]},
+  // HOU
+  {h:"aaaborwitz",cat:"reporter",teams:["HOU"]},
+  // IND
+  {h:"JCAllenNFL",cat:"reporter",teams:["IND"]},
+  {h:"MikeWellsNFL",cat:"reporter",teams:["IND"]},
+  {h:"JoelAErickson",cat:"reporter",teams:["IND"]},
+  // JAX
+  {h:"LockedOnJaguars",cat:"reporter",teams:["JAX"]},
+  {h:"TheJaguarsWire",cat:"reporter",teams:["JAX"]},
+  {h:"JaguarsOnSI",cat:"reporter",teams:["JAX"]},
+  {h:"ParkerJGabriel",cat:"reporter",teams:["JAX"]},
+  // KC
+  {h:"RonOnChiefs",cat:"reporter",teams:["KC"]},
+  {h:"SamMcDowell11",cat:"reporter",teams:["KC"]},
+  {h:"jessenewell",cat:"reporter",teams:["KC"]},
+  // LAC
+  {h:"TheChargersWire",cat:"reporter",teams:["LAC"]},
+  {h:"SDUTKrasovic",cat:"reporter",teams:["LAC"]},
+  // LAR
+  {h:"StuJRams",cat:"reporter",teams:["LAR"]},
+  {h:"LindseyThiry",cat:"reporter",teams:["LAR"]},
+  {h:"LATimesklein",cat:"reporter",teams:["LAR"]},
+  // MIA
+  {h:"cpriceglobe",cat:"reporter",teams:["MIA"]},
+  {h:"AdamGrosbard",cat:"reporter",teams:["MIA"]},
+  {h:"DanWSports",cat:"reporter",teams:["MIA"]},
+  // MIN
+  {h:"vikingterritory",cat:"reporter",teams:["MIN"]},
+  {h:"MatthewColler",cat:"reporter",teams:["MIN"]},
+  {h:"TheVikingAge",cat:"reporter",teams:["MIN"]},
+  {h:"Arif_NFL",cat:"reporter",teams:["MIN"]},
+  // NE
+  {h:"mikekadlick",cat:"reporter",teams:["NE"]},
+  {h:"MikeGiardi",cat:"reporter",teams:["NE"]},
+  {h:"RichCimini",cat:"reporter",teams:["NYJ"]},
+  // NYG
+  {h:"Patricia_Traina",cat:"reporter",teams:["NYG"]},
+  {h:"TomRock_Newsday",cat:"reporter",teams:["NYG"]},
+  {h:"giantseisen",cat:"reporter",teams:["NYG"]},
+  {h:"art_stapleton",cat:"reporter",teams:["NYG"]},
+  {h:"giantswfan",cat:"reporter",teams:["NYG"]},
+  {h:"NYPost_Schwartz",cat:"reporter",teams:["NYG"]},
+  {h:"KristianRDyer",cat:"reporter",teams:["NYG"]},
+  {h:"CLoprestiWFAN",cat:"reporter",teams:["NYG"]},
+  // NYJ
+  {h:"eallenjets",cat:"reporter",teams:["NYJ"]},
+  {h:"domcosentino",cat:"reporter",teams:["NYJ"]},
+  {h:"Brian_Bassett",cat:"reporter",teams:["NYJ"]},
+  // LV
+  {h:"PaulHGutierrez",cat:"reporter",teams:["LV"]},
+  {h:"VicTafur",cat:"reporter",teams:["LV"]},
+  {h:"Jimmy_Durkin",cat:"reporter",teams:["LV"]},
+  // PHI
+  {h:"DZangaroNBCS",cat:"reporter",teams:["PHI"]},
+  {h:"BleedingGreen",cat:"reporter",teams:["PHI"]},
+  {h:"kracze",cat:"reporter",teams:["PHI"]},
+  {h:"JFMcMullen",cat:"reporter",teams:["PHI"]},
+  {h:"BrandonGowton",cat:"reporter",teams:["PHI"]},
+  {h:"JimmyKempski",cat:"reporter",teams:["PHI"]},
+  {h:"JeffKerrPHL",cat:"reporter",teams:["PHI"]},
+  {h:"EliotShorrParks",cat:"reporter",teams:["PHI"]},
+  {h:"Tim_McManus",cat:"reporter",teams:["PHI"]},
+  {h:"GeoffPMosher",cat:"reporter",teams:["PHI"]},
+  // PIT
+  {h:"MikeDeFabo",cat:"reporter",teams:["PIT"]},
+  {h:"FarabaughFB",cat:"reporter",teams:["PIT"]},
+  {h:"NickSchwagerNFL",cat:"reporter",teams:["PIT"]},
+  {h:"AndrewDiCecco",cat:"reporter",teams:["PIT"]},
+  {h:"Teresa_Varley",cat:"reporter",teams:["PIT"]},
+  {h:"BobLabriola",cat:"reporter",teams:["PIT"]},
+  {h:"rayfitt1",cat:"reporter",teams:["PIT"]},
+  {h:"C_AdamskiTrib",cat:"reporter",teams:["PIT"]},
+  {h:"gerrydulac",cat:"reporter",teams:["PIT"]},
+  {h:"MarkKaboly",cat:"reporter",teams:["PIT"]},
+  {h:"dlolley_pgh",cat:"reporter",teams:["PIT"]},
+  {h:"Dejan_Kovacevic",cat:"reporter",teams:["PIT"]},
+  {h:"ZBerm",cat:"reporter",teams:["PIT"]},
+  {h:"APgelston",cat:"reporter",teams:["PIT"]},
+  // SF
+  {h:"TracyFGSN",cat:"reporter",teams:["SF"]},
+  {h:"Eric_Branch",cat:"reporter",teams:["SF"]},
+  {h:"CamInman",cat:"reporter",teams:["SF"]},
+  {h:"MaioccoNBCS",cat:"reporter",teams:["SF"]},
+  {h:"_noahfurtado",cat:"reporter",teams:["SF"]},
+  {h:"grantcohn",cat:"reporter",teams:["SF"]},
+  {h:"Joe_Fann",cat:"reporter",teams:["SF"]},
+  {h:"klynch49",cat:"reporter",teams:["SF"]},
+  // SEA
+  {h:"johnpboyle",cat:"reporter",teams:["SEA"]},
+  {h:"gbellseattle",cat:"reporter",teams:["SEA"]},
+  {h:"bcondotta",cat:"reporter",teams:["SEA"]},
+  {h:"JaysonJenks",cat:"reporter",teams:["SEA"]},
+  {h:"SeifertESPN",cat:"reporter",teams:["SEA"]},
+  // TB
+  {h:"TampaBayTre",cat:"reporter",teams:["TB"]},
+  {h:"JennaLaineESPN",cat:"reporter",teams:["TB"]},
+  {h:"ScottSBucs",cat:"reporter",teams:["TB"]},
+  {h:"IKaufman76",cat:"reporter",teams:["TB"]},
+  {h:"caseyreporting",cat:"reporter",teams:["TB"]},
+  {h:"TomWJones",cat:"reporter",teams:["TB"]},
+  // TEN
+  {h:"Tdrake4sports",cat:"reporter",teams:["TEN"]},
+  {h:"E_Woodyard",cat:"reporter",teams:["TEN"]},
+  {h:"TerryMcCormick",cat:"reporter",teams:["TEN"]},
+  // WAS
+  {h:"john_keim",cat:"reporter",teams:["WAS"]},
+  {h:"BenStandig",cat:"reporter",teams:["WAS"]},
+  {h:"Commanders",cat:"team",teams:["WAS"]},
+  
+  // ─── ADDITIONAL BEAT WRITERS (from Unabated recommended list) ───
+  // ARI
+  {h:"CraigAZSports",cat:"team",teams:["ARI"]},
+  // ATL
+  {h:"marcraimondi",cat:"reporter",teams:["ATL"]},
+  {h:"ZachKleinWSB",cat:"reporter",teams:["ATL"]},
+  // BAL
+  {h:"jeffzrebiec",cat:"reporter",teams:["BAL"]},
+  {h:"jamisonhensley",cat:"reporter",teams:["BAL"]},
+  {h:"jonas_shaffer",cat:"reporter",teams:["BAL"]},
+  // BUF
+  {h:"JaySkurski",cat:"reporter",teams:["BUF"]},
+  {h:"MattParrino",cat:"reporter",teams:["BUF"]},
+  // CHI
+  {h:"adamjahns",cat:"reporter",teams:["CHI"]},
+  {h:"kfishbain",cat:"reporter",teams:["CHI"]},
+  {h:"danwiederer",cat:"reporter",teams:["CHI"]},
+  // CIN
+  {h:"pauldehnerjr",cat:"reporter",teams:["CIN"]},
+  // CLE
+  {h:"AkronJackson",cat:"reporter",teams:["CLE"]},
+  // DAL
+  {h:"TimCowlishaw",cat:"reporter",teams:["DAL"]},
+  {h:"DavidMooreDMN",cat:"reporter",teams:["DAL"]},
+  {h:"CalvinWatkins",cat:"reporter",teams:["DAL"]},
+  // DEN
+  {h:"TroyRenck",cat:"reporter",teams:["DEN"]},
+  {h:"MaseDenver",cat:"reporter",teams:["DEN"]},
+  {h:"christomasson",cat:"reporter",teams:["DEN"]},
+  // DET
+  {h:"davebirkett",cat:"reporter",teams:["DET"]},
+  {h:"Justin_Rogers",cat:"reporter",teams:["DET"]},
+  // GB
+  {h:"TomSilverstein",cat:"reporter",teams:["GB"]},
+  // HOU
+  {h:"jonmalexander",cat:"reporter",teams:["HOU"]},
+  // IND
+  {h:"mchappell51",cat:"reporter",teams:["IND"]},
+  {h:"HolderStephen",cat:"reporter",teams:["IND"]},
+  // JAX
+  {h:"HaysCarlyon",cat:"reporter",teams:["JAX"]},
+  {h:"_John_Shipley",cat:"reporter",teams:["JAX"]},
+  // KC
+  {h:"mattderrick",cat:"reporter",teams:["KC"]},
+  {h:"adamteicher",cat:"reporter",teams:["KC"]},
+  {h:"EdEastonJr",cat:"reporter",teams:["KC"]},
+  // LV
+  {h:"tashanreed",cat:"reporter",teams:["LV"]},
+  {h:"VinnyBonsignore",cat:"reporter",teams:["LV"]},
+  // LAC
+  {h:"danielrpopper",cat:"reporter",teams:["LAC"]},
+  // LAR
+  {h:"JourdanRodrigue",cat:"reporter",teams:["LAR"]},
+  // MIA
+  {h:"DavidFurones_",cat:"reporter",teams:["MIA"]},
+  {h:"schadjoe",cat:"reporter",teams:["MIA"]},
+  // MIN
+  {h:"LindseyMNSports",cat:"reporter",teams:["MIN"]},
+  // NE
+  {h:"MikeReiss",cat:"reporter",teams:["NE"]},
+  {h:"PhilAPerry",cat:"reporter",teams:["NE"]},
+  // NO
+  {h:"ByLukeJohnson",cat:"reporter",teams:["NO"]},
+  // NYJ
+  {h:"BrianCoz",cat:"reporter",teams:["NYJ"]},
+  // PHI
+  {h:"Jeff_McLane",cat:"reporter",teams:["PHI"]},
+  {h:"ZBerm",cat:"reporter",teams:["PHI"]},
+  // SEA
+  {h:"gbellseattle",cat:"reporter",teams:["SEA"]},
+  // SF
+  {h:"LombardiHimself",cat:"reporter",teams:["SF"]},
+  // TB
+  {h:"gregauman",cat:"reporter",teams:["TB"]},
+  // TEN
+  {h:"TDavenport_NFL",cat:"reporter",teams:["TEN"]},
+
+  // ─── DRAFT / SCOUTING ───
+  {h:"Jordan_Reid",cat:"analyst",teams:[]},
+  {h:"BrandonThornNFL",cat:"analyst",teams:[]},
+  {h:"LedyardNFLDraft",cat:"analyst",teams:[]},
+  {h:"KyleCrabbs",cat:"analyst",teams:[]},
+  {h:"TheJoeMarino",cat:"analyst",teams:[]},
+  {h:"JReidESPN",cat:"analyst",teams:[]},
+
+  // ─── OTHER REPORTERS & MISC ───
+  {h:"Filmwatchers1",cat:"analyst",teams:[]},
+  {h:"bylucaevans",cat:"reporter",teams:[]},
+  {h:"AtoZ_Payton",cat:"reporter",teams:[]},
+  {h:"Matthew_Paras",cat:"reporter",teams:[]},
+  {h:"briannadixNFL",cat:"reporter",teams:[]},
+  {h:"CoachWilson66",cat:"analyst",teams:[]},
+  {h:"_RyanFowler_",cat:"reporter",teams:[]},
+  {h:"BobbySkinner_",cat:"reporter",teams:[]},
+  {h:"charlotteharpur",cat:"reporter",teams:[]},
+  {h:"barrysvrluga",cat:"reporter",teams:[]},
+  {h:"BoBrack",cat:"reporter",teams:[]},
+  {h:"Sheena_Marie3",cat:"reporter",teams:[]},
+  {h:"RomeovilleKid",cat:"reporter",teams:[]},
+  {h:"krisrhim1",cat:"reporter",teams:[]},
+  {h:"Schrock_And_Awe",cat:"reporter",teams:[]},
+  {h:"kelseyyrusso",cat:"reporter",teams:[]},
+  {h:"NicholasMoreano",cat:"reporter",teams:[]},
+  {h:"JustinM_NFL",cat:"reporter",teams:[]},
+  {h:"Demetrius82",cat:"reporter",teams:[]},
+  {h:"Sam4TR",cat:"reporter",teams:[]},
+  {h:"HBalzer721",cat:"reporter",teams:[]},
+  {h:"NickOlsonNFL",cat:"reporter",teams:[]},
+  {h:"TerrinWaack",cat:"reporter",teams:[]},
+  {h:"clayharbs82",cat:"analyst",teams:[]},
+  {h:"JohnnyVenerable",cat:"reporter",teams:[]},
+  {h:"akwong31",cat:"reporter",teams:[]},
+  {h:"alexinsdorf99",cat:"reporter",teams:[]},
+  {h:"DDuggan21",cat:"reporter",teams:[]},
+  {h:"PLeonardNYDN",cat:"reporter",teams:["NYG"]},
+  {h:"lawlornfl",cat:"reporter",teams:[]},
+  {h:"TDavenport_NFL",cat:"reporter",teams:[]},
+  {h:"ScottBairNFL",cat:"reporter",teams:["ATL"]},
+  {h:"Foxworth24",cat:"analyst",teams:[]},
+  {h:"Schultz_Report",cat:"insider",teams:[]},
+  {h:"FallonSmithTV",cat:"reporter",teams:[]},
+  {h:"AnthonyGulizia",cat:"reporter",teams:[]},
+  {h:"michaelpinRVA",cat:"reporter",teams:[]},
+  {h:"bmcnally14",cat:"reporter",teams:[]},
+  {h:"JasonWolf",cat:"reporter",teams:[]},
+  {h:"glennonsports",cat:"reporter",teams:[]},
+  {h:"edubnfl22",cat:"analyst",teams:[]},
+  {h:"DWAZ73",cat:"reporter",teams:[]},
+  {h:"caplannfl",cat:"reporter",teams:[]},
+  {h:"MichaelDavSmith",cat:"reporter",teams:[]},
+  {h:"pdomo",cat:"reporter",teams:[]},
+  {h:"rydunleavy",cat:"reporter",teams:[]},
+  {h:"BrianCoz",cat:"reporter",teams:[]},
+  {h:"JoelAErickson",cat:"reporter",teams:["IND"]},
+  {h:"Kat_Terrell",cat:"reporter",teams:["NO"]},
+  {h:"MikeTriplett",cat:"reporter",teams:["NO"]},
+  {h:"DavidHelman_",cat:"reporter",teams:["DAL"]},
+  {h:"benlinsey_",cat:"analyst",teams:[]},
+  {h:"MitchSchwartz71",cat:"analyst",teams:[]},
+  {h:"StevenIHaglund",cat:"analyst",teams:[]},
+];
+
+// ── Application State ──
+let state = {
+  view: 'scrape',           // feed | sources | settings | scrape
+  sourceFilter: 'all',    // all | reporter | team | insider | analyst | league
+  sourceSearch: '',
+  teamFilter: 'all',      // all | specific team abbr
+  typeFilter: 'all',       // all | injury | transaction | benching | ...
+  statusFilter: 'all',     // all | pending | approved | rejected
+  feedItems: [],           // the main intel feed
+  approvedItems: [],       // approved for depth chart integration
+  rejectedIds: new Set(),
+  sources: [...SOURCES_RAW],
+  scrapeHistory: [],       // log of scrape runs
+  lastScrape: null,
+  selectedItem: null,
+  modalOpen: null,         // null | 'reclassify' | 'addSource' | 'scrapeConfig' | 'export' | 'manual'
+  reclassifyTarget: null,
+  manualEntryText: '',
+  scrapeRunning: false,
+  _autoFeedItems: [],
+  _autoFeedLoading: false,
+  _autoFeedError: null,
+  _autoTeamFilter: 'all',
+  _showTools: true
+};
+
+state.ncaaSources = [...NCAA_SOURCES_RAW];
+
+// ── Per-league state ──
+let nflFeedItems = [], ncaaFeedItems = [];
+let nflApprovedItems = [], ncaaApprovedItems = [];
+let nflRejectedIds = new Set(), ncaaRejectedIds = new Set();
+let nflAutoFeed = [], ncaaAutoFeed = [];
+
+function getFeedItems() { return activeLeague === 'nfl' ? state.feedItems : ncaaFeedItems; }
+function setFeedItems(v) { if (activeLeague === 'nfl') state.feedItems = v; else ncaaFeedItems = v; }
+function getApprovedItems() { return activeLeague === 'nfl' ? state.approvedItems : ncaaApprovedItems; }
+function setApprovedItems(v) { if (activeLeague === 'nfl') state.approvedItems = v; else ncaaApprovedItems = v; }
+function getRejectedIds() { return activeLeague === 'nfl' ? state.rejectedIds : ncaaRejectedIds; }
+function getTeams() { return activeLeague === 'nfl' ? NFL_TEAMS : NCAA_TEAMS; }
+function getIntelTypes() { return activeLeague === 'nfl' ? INTEL_TYPES : NCAA_INTEL_TYPES; }
+function getSources() { return activeLeague === 'nfl' ? state.sources : state.ncaaSources; }
+function getTopInsiders() { return activeLeague === 'nfl' ? TOP_INSIDERS : NCAA_TOP_INSIDERS; }
+
+function switchLeague(lg) {
+  // Save current league's feed state
+  if (activeLeague === 'nfl') {
+    nflAutoFeed = state._autoFeedItems || [];
+  } else {
+    ncaaAutoFeed = state._autoFeedItems || [];
+  }
+  activeLeague = lg;
+  // Restore target league's auto feed
+  state._autoFeedItems = lg === 'nfl' ? nflAutoFeed : ncaaAutoFeed;
+  state._autoFeedLoading = false;
+  state._autoFeedError = null;
+  state._autoTeamFilter = 'all';
+  state.teamFilter = 'all';
+  state.typeFilter = 'all';
+  state.statusFilter = 'all';
+  // Update header
+  document.getElementById('hdrSub').textContent = (lg === 'nfl' ? 'NFL' : 'CFB') + ' DEPTH CHART INTELLIGENCE \u00b7 X FEED MONITOR';
+  document.getElementById('hdrLogo').style.background = lg === 'nfl' ? 'linear-gradient(135deg,#ef4444,#d97706)' : 'linear-gradient(135deg,#7c3aed,#6d28d9)';
+  document.getElementById('hdrLogo').style.boxShadow = lg === 'nfl' ? '0 2px 8px rgba(239,68,68,.3)' : '0 2px 8px rgba(124,58,237,.3)';
+  document.querySelectorAll('.lg-btn').forEach(b => b.classList.remove('on'));
+  document.querySelector('.lg-btn.' + lg).classList.add('on');
+  render();
+}
+
+
+
+// ── Helpers ──
+function $(sel) { return document.querySelector(sel); }
+function h(tag, attrs, ...children) {
+  const el = document.createElement(tag);
+  if (attrs) Object.entries(attrs).forEach(([k, v]) => {
+    if (k === 'class') el.className = v;
+    else if (k === 'style' && typeof v === 'object') Object.assign(el.style, v);
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2).toLowerCase(), v);
+    else if (k === 'disabled' && v) el.setAttribute('disabled', '');
+    else el.setAttribute(k, v);
+  });
+  children.flat().forEach(c => {
+    if (c == null) return;
+    el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+  });
+  return el;
+}
+
+function setState(upd) {
+  Object.assign(state, upd);
+  render();
+}
+
+function showToast(msg, dur=3000) {
+  const t = h('div', {class: 'toast'}, msg);
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), dur);
+}
+
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+
+function timeAgo(ts) {
+  const diff = Date.now() - new Date(ts).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return mins + 'm ago';
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + 'h ago';
+  const days = Math.floor(hrs / 24);
+  return days + 'd ago';
+}
+
+// ── Auto-classify intel type from post text ──
+function classifyIntel(text) {
+  const lower = text.toLowerCase();
+  let bestType = 'unknown';
+  let bestScore = 0;
+  
+  const iTypes = getIntelTypes();
+  for (const [type, config] of Object.entries(iTypes)) {
+    let score = 0;
+    for (const kw of config.keywords) {
+      if (lower.includes(kw.toLowerCase())) score++;
+    }
+    if (score > bestScore) { bestScore = score; bestType = type; }
+  }
+  return bestType;
+}
+
+// ── Extract team mentions from text ──
+function extractTeams(text) {
+  const found = [];
+  const teams = getTeams();
+  for (const team of teams) {
+    const patterns = [
+      team.abbr, team.short, team.name,
+      team.abbr.toLowerCase(), team.short.toLowerCase()
+    ];
+    for (const p of patterns) {
+      // Word boundary check
+      const regex = new RegExp('\\b' + p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
+      if (regex.test(text)) {
+        if (!found.includes(team.abbr)) found.push(team.abbr);
+        break;
+      }
+    }
+  }
+  return found;
+}
+
+// ── Extract potential player names (capitalized two-word sequences) ──
+function extractPlayers(text) {
+  const matches = text.match(/(?:^|[\s,;:])([A-Z][a-z]+(?:\s(?:Jr\.|Sr\.|III|II|IV|[A-Z][a-z]+))+)/g);
+  if (!matches) return [];
+  return [...new Set(matches.map(m => m.trim()))].slice(0, 5);
+}
+
+// ── Persistence ──
+function saveState() {
+  try {
+    const data = {
+      feedItems: state.feedItems,
+      approvedItems: state.approvedItems,
+      rejectedIds: [...state.rejectedIds],
+      sources: state.sources,
+      ncaaSources: state.ncaaSources,
+      ncaaFeedItems: ncaaFeedItems,
+      ncaaApprovedItems: ncaaApprovedItems,
+      ncaaRejectedIds: [...ncaaRejectedIds],
+      scrapeHistory: state.scrapeHistory,
+      lastScrape: state.lastScrape,
+      activeLeague: activeLeague,
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem('intel_wire_v1_1', JSON.stringify(data));
+    showToast('✓ State saved');
+  } catch(e) { showToast('Save failed: ' + e.message); }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem('intel_wire_v1_1') || localStorage.getItem('nfl_intel_wire_v1');
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (data.feedItems) state.feedItems = data.feedItems;
+    if (data.approvedItems) state.approvedItems = data.approvedItems;
+    if (data.rejectedIds) state.rejectedIds = new Set(data.rejectedIds);
+    if (data.sources) state.sources = data.sources;
+    if (data.ncaaSources) state.ncaaSources = data.ncaaSources;
+    if (data.ncaaFeedItems) ncaaFeedItems = data.ncaaFeedItems;
+    if (data.ncaaApprovedItems) ncaaApprovedItems = data.ncaaApprovedItems;
+    if (data.ncaaRejectedIds) ncaaRejectedIds = new Set(data.ncaaRejectedIds);
+    if (data.scrapeHistory) state.scrapeHistory = data.scrapeHistory;
+    if (data.lastScrape) state.lastScrape = data.lastScrape;
+    if (data.activeLeague) activeLeague = data.activeLeague;
+  } catch(e) { console.warn('Load failed', e); }
+}
+
+function importState() {
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = '.json';
+  inp.onchange = e => {
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (data.feedItems) state.feedItems = data.feedItems;
+        if (data.approvedItems) state.approvedItems = data.approvedItems;
+        if (data.rejectedIds) state.rejectedIds = new Set(data.rejectedIds || []);
+        if (data.sources) state.sources = data.sources;
+        render();
+        showToast('✓ Imported ' + (data.feedItems||[]).length + ' items');
+      } catch(e) { showToast('Import failed'); }
+    };
+    r.readAsText(f);
+  };
+  inp.click();
+}
+
+// ── Export Approved Items for Depth Chart Auditor ──
+function exportApproved() {
+  setState({modalOpen: 'export'});
+}
+
+function doExport(format) {
+  const items = getApprovedItems().length ? getApprovedItems() : getFeedItems().filter(i => !getRejectedIds().has(i.id));
+  
+  if (format === 'json') {
+    // Structured JSON compatible with depth chart auditor
+    const output = {
+      exportedAt: new Date().toISOString(),
+      source: 'Intel Wire v1.1 (' + (activeLeague === 'nfl' ? 'NFL' : 'NCAA') + ')',
+      version: '1.1',
+      league: activeLeague,
+      intelItems: items.map(i => ({
+        id: i.id,
+        type: i.type,
+        author: i.author,
+        text: i.text,
+        teams: i.teams,
+        players: i.players,
+        timestamp: i.timestamp,
+        status: i.status,
+        xUrl: i.url || null,
+        // Depth chart integration fields
+        depthChartImpact: {
+          franchise_ids: i.teams.map(abbr => {
+            const t = getTeams().find(t => t.abbr === abbr);
+            return t ? t.id : null;
+          }).filter(Boolean),
+          impactType: i.type,
+          playerNames: i.players || []
+        }
+      }))
+    };
+    downloadJSON(output, activeLeague + '_intel_wire_export_' + new Date().toISOString().slice(0,10) + '.json');
+  } else if (format === 'csv') {
+    const rows = [['id','type','author','text','teams','players','timestamp','url']];
+    items.forEach(i => {
+      rows.push([i.id, i.type, i.author, '"' + (i.text||'').replace(/"/g,'""') + '"',
+        (i.teams||[]).join(';'), (i.players||[]).join(';'), i.timestamp, i.url||'']);
+    });
+    downloadCSV(rows, activeLeague + '_intel_wire_export_' + new Date().toISOString().slice(0,10) + '.csv');
+  }
+  setState({modalOpen: null});
+  showToast('✓ Exported ' + items.length + ' items');
+}
+
+function downloadJSON(data, filename) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = filename; a.click();
+}
+
+function downloadCSV(rows, filename) {
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], {type: 'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = filename; a.click();
+}
+
+// ══════════════════════════════════════════════════════════
+// X SCRAPING ENGINE
+// Uses X's advanced search operators + the curated source list
+// to fetch only relevant, trusted content.
+// ══════════════════════════════════════════════════════════
+
+// X search URL max safe length (~2000 chars in the query param itself)
+const MAX_QUERY_LENGTH = 1800;
+
+// Build X search URL for a batch of accounts
+function buildSearchUrl(handles, keywords, dateFrom, dateTo) {
+  const fromClause = handles.map(h => 'from:' + h).join(' OR ');
+  let q = '(' + fromClause + ')';
+  if (keywords && keywords.length) {
+    // Only add keywords if they fit within URL limits
+    const kwClause = ' (' + keywords.join(' OR ') + ')';
+    if ((q + kwClause).length < MAX_QUERY_LENGTH - 100) {
+      q += kwClause;
+    } else {
+      // Trim keywords to fit — take as many as we can
+      let trimmedKw = [];
+      let testQ = q + ' (';
+      for (const kw of keywords) {
+        const next = testQ + (trimmedKw.length ? ' OR ' : '') + kw + ')';
+        if (next.length < MAX_QUERY_LENGTH - 100) {
+          trimmedKw.push(kw);
+          testQ = q + ' (' + trimmedKw.join(' OR ') + ')';
+        } else break;
+      }
+      if (trimmedKw.length) q += ' (' + trimmedKw.join(' OR ') + ')';
+    }
+  }
+  if (dateFrom) q += ' since:' + dateFrom;
+  if (dateTo) q += ' until:' + dateTo;
+  q += ' -filter:replies';
+  return 'https://x.com/search?q=' + encodeURIComponent(q) + '&src=typed_query&f=live';
+}
+
+// Dynamically calculate batch size based on keyword length
+function calcBatchSize(keywords) {
+  if (!keywords || !keywords.length) return 12;
+  const kwLength = keywords.join(' OR ').length + 4; // parens + spaces
+  // from:handle averages ~18 chars per handle + " OR " = ~22
+  // Budget: MAX_QUERY_LENGTH - kwLength - 50 (for date/filter) = space for handles
+  const handleBudget = MAX_QUERY_LENGTH - kwLength - 80;
+  const perHandle = 22; // avg "from:SomeHandle OR "
+  const size = Math.max(3, Math.min(12, Math.floor(handleBudget / perHandle)));
+  return size;
+}
+
+// Generate scrape URLs for batches
+function generateScrapeUrls(options = {}) {
+  const {
+    category = 'all',
+    team = 'all', 
+    keywords = [],
+    dateFrom = '',
+    dateTo = ''
+  } = options;
+  
+  let sources = getSources();
+  
+  if (category !== 'all') {
+    sources = sources.filter(s => s.cat === category);
+  }
+  if (team !== 'all') {
+    sources = sources.filter(s => s.teams.length === 0 || s.teams.includes(team));
+  }
+  
+  const handles = sources.map(s => s.h);
+  const batchSize = calcBatchSize(keywords);
+  const urls = [];
+  
+  for (let i = 0; i < handles.length; i += batchSize) {
+    const batch = handles.slice(i, i + batchSize);
+    const url = buildSearchUrl(batch, keywords, dateFrom, dateTo);
+    
+    // Final safety check — if URL is still too long, split further
+    if (url.length > 2200) {
+      const half = Math.ceil(batch.length / 2);
+      urls.push({
+        url: buildSearchUrl(batch.slice(0, half), keywords, dateFrom, dateTo),
+        handles: batch.slice(0, half),
+        batchNum: urls.length + 1,
+        totalBatches: -1 // recalculated below
+      });
+      urls.push({
+        url: buildSearchUrl(batch.slice(half), keywords, dateFrom, dateTo),
+        handles: batch.slice(half),
+        batchNum: urls.length + 1,
+        totalBatches: -1
+      });
+    } else {
+      urls.push({
+        url: url,
+        handles: batch,
+        batchNum: urls.length + 1,
+        totalBatches: -1
+      });
+    }
+  }
+  
+  // Fix totalBatches
+  urls.forEach(u => u.totalBatches = urls.length);
+  
+  return urls;
+}
+
+// Depth-chart-relevant keywords — trimmed to fit X URL limits
+const SCRAPE_PRESETS = {
+  insidersOnly: {
+    label: "⚡ Insiders Only (Schefter, Rap, etc.)",
+    keywords: ["injury","IR","trade","signed","released","waived","starter","benched","questionable","ruled out","suspended"],
+    _sourceOverride: "insider"  // forces source filter to insiders only
+  },
+  injuries: {
+    label: "🏥 Injuries",
+    keywords: ["injury","IR","questionable","doubtful","DNP","concussion","ACL","MCL","hamstring","MRI","surgery","carted","placed on IR"]
+  },
+  transactions: {
+    label: "📋 Transactions",
+    keywords: ["trade","traded","signed","released","waived","claimed","free agent","practice squad","elevated","53-man","roster move"]
+  },
+  depthChart: {
+    label: "📊 Depth Chart",
+    keywords: ["starter","starting","benched","demoted","promoted","depth chart","named starter","will start","QB1"]
+  },
+  allRelevant: {
+    label: "🔥 All Intel (filtered)",
+    keywords: ["injury","IR","trade","signed","released","waived","starter","benched","promoted","suspended","questionable","ruled out"]
+  },
+  noKeywords: {
+    label: "📨 All Posts (no filter)",
+    keywords: []
+  },
+  custom: {
+    label: "⚙️ Custom Keywords",
+    keywords: []
+  }
+};
+
+// ── Add manual entry ──
+function addManualEntry() {
+  const text = state.manualEntryText.trim();
+  if (!text) return;
+  
+  const item = {
+    id: genId(),
+    author: 'manual_entry',
+    authorName: 'Manual Entry',
+    text: text,
+    type: classifyIntel(text),
+    teams: extractTeams(text),
+    players: extractPlayers(text),
+    timestamp: new Date().toISOString(),
+    status: 'pending',
+    source: 'manual',
+    url: ''
+  };
+  
+  if (activeLeague === 'nfl') {
+    state.feedItems.unshift(item);
+  } else {
+    ncaaFeedItems.unshift(item);
+  }
+  state.manualEntryText = '';
+  render();
+  showToast('✓ Manual entry added');
+}
+
+// ── Paste from X (parse pasted tweet text) ──
+function parsePastedTweets(text) {
+  // Split on common tweet separators
+  const blocks = text.split(/\n{2,}/).filter(b => b.trim());
+  const items = [];
+  
+  for (const block of blocks) {
+    const lines = block.trim().split('\n');
+    let author = '';
+    let tweetText = '';
+    let timestamp = '';
+    
+    // Try to extract @handle
+    const handleMatch = block.match(/@(\w+)/);
+    if (handleMatch) author = handleMatch[1];
+    
+    // The main text is everything that's not metadata
+    tweetText = lines.filter(l => {
+      const trimmed = l.trim();
+      // Skip lines that look like metadata
+      if (trimmed.match(/^\d+:\d+\s*(AM|PM)/i)) { timestamp = trimmed; return false; }
+      if (trimmed.match(/^\d+\s+(repost|like|reply|view|quote)/i)) return false;
+      if (trimmed.match(/^(Show this thread|Translate post)/i)) return false;
+      return true;
+    }).join(' ').trim();
+    
+    if (tweetText.length > 10) {
+      items.push({
+        id: genId(),
+        author: author || 'unknown',
+        authorName: author || 'Pasted',
+        text: tweetText,
+        type: classifyIntel(tweetText),
+        teams: extractTeams(tweetText),
+        players: extractPlayers(tweetText),
+        timestamp: timestamp || new Date().toISOString(),
+        status: 'pending',
+        source: 'paste',
+        url: ''
+      });
+    }
+  }
+  return items;
+}
+
+// ── Approve / Reject / Reclassify ──
+function approveItem(id) {
+  const items = activeLeague === 'nfl' ? state.feedItems : ncaaFeedItems;
+  const approved = activeLeague === 'nfl' ? state.approvedItems : ncaaApprovedItems;
+  const rejected = getRejectedIds();
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  item.status = 'approved';
+  if (!approved.find(a => a.id === id)) {
+    approved.push({...item});
+  }
+  rejected.delete(id);
+  render();
+}
+
+function rejectItem(id) {
+  const items = activeLeague === 'nfl' ? state.feedItems : ncaaFeedItems;
+  const rejected = getRejectedIds();
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  item.status = 'rejected';
+  rejected.add(id);
+  if (activeLeague === 'nfl') state.approvedItems = state.approvedItems.filter(a => a.id !== id);
+  else ncaaApprovedItems = ncaaApprovedItems.filter(a => a.id !== id);
+  render();
+}
+
+function reclassifyItem(id, newType) {
+  const items = activeLeague === 'nfl' ? state.feedItems : ncaaFeedItems;
+  const approved = activeLeague === 'nfl' ? state.approvedItems : ncaaApprovedItems;
+  const item = items.find(i => i.id === id);
+  if (item) item.type = newType;
+  const app = approved.find(a => a.id === id);
+  if (app) app.type = newType;
+  setState({modalOpen: null, reclassifyTarget: null});
+}
+
+function editTeams(id, teams) {
+  const item = state.feedItems.find(i => i.id === id);
+  if (item) item.teams = teams;
+  const approved = state.approvedItems.find(a => a.id === id);
+  if (approved) approved.teams = teams;
+  render();
+}
+
+
+// ══════════════════════════════════════════════════════════
+// AUTO-FETCH: Uses Anthropic API + web search to pull latest intel
+// ══════════════════════════════════════════════════════════
+
+const TOP_INSIDERS = ['AdamSchefter','RapSheet','TomPelissero','FieldYates','JosinaAnderson','DMRussini','MikeGarafolo','JayGlazer','Schultz_Report','JeffDarlington','DiannaESPN','CharlesRobinson','JFowlerESPN','DanGrazianoESPN','JennyVrentas'];
+
+async function autoFetchInsiderIntel() {
+  if (state._autoFeedLoading) return;
+  state._autoFeedLoading = true;
+  state._autoFeedError = null;
+  render();
+  
+  try {
+    const isNFL = activeLeague === 'nfl';
+    const insiderList = getTopInsiders().join(', @');
+    const systemPrompt = isNFL
+      ? `You are an NFL news aggregator. You must search the web and return structured JSON. After searching, return ONLY a JSON array — no explanations, no markdown, no preamble.`
+      : `You are a college football news aggregator. You must search the web and return structured JSON. After searching, return ONLY a JSON array — no explanations, no markdown, no preamble.`;
+    
+    const userPrompt = isNFL
+      ? `Search for the LATEST NFL news from the past 24 hours that impacts team depth charts: injuries, trades, signings, releases, waivers, suspensions, benchings, promotions, practice status updates, roster moves.
+
+IMPORTANT: Only include NFL (professional) news. Do NOT include any NCAA, college football, draft prospect, or college player news. Only current NFL roster players and NFL team transactions.
+
+Focus on news from top NFL insiders: @${insiderList}
+
+Search for: "NFL injury news today", "NFL transactions today", "NFL roster moves today"
+
+Return ONLY a JSON array. Each item: {"author":"TwitterHandle","text":"full news summary","teams":["ABR"],"players":["Full Name"],"type":"injury|transaction|benching|promotion|suspension|retirement","timestamp":"Xh ago"}
+Team abbreviations: ARI,ATL,BAL,BUF,CAR,CHI,CIN,CLE,DAL,DEN,DET,GB,HOU,IND,JAX,KC,MIA,MIN,NE,NO,NYG,NYJ,LV,PHI,PIT,LAR,LAC,SF,SEA,TB,TEN,WAS
+If no news found, return [].`
+      : `Search for the LATEST college football (NCAA/CFB) news from the past 24 hours that impacts team depth charts: injuries, transfer portal entries/commitments, suspensions, dismissals, benchings, QB competitions, NIL deals, coaching changes.
+
+IMPORTANT: Only include COLLEGE FOOTBALL news. Do NOT include any NFL or professional football news.
+
+Focus on news from top CFB insiders: @${insiderList}
+
+Search for: "college football transfer portal today", "CFB injury news", "college football roster moves today", "CFB portal tracker"
+
+Return ONLY a JSON array. Each item: {"author":"TwitterHandle","text":"full news summary","teams":["ABR"],"players":["Full Name"],"type":"injury|portal|transaction|benching|promotion|suspension|nil|coaching","timestamp":"Xh ago"}
+Top team abbreviations: ALA,UGA,OSU,MICH,TEX,ORE,PSU,USC,FSU,MIAF,CLEM,LSU,TENN,OU,TAMU,UNC,COLO,IOWA,NEB,SC
+If no news found, return [].`;
+
+    // First call — model will likely use web_search tool
+    let messages = [{ role: "user", content: userPrompt }];
+    let finalText = '';
+    let rounds = 0;
+    const maxRounds = 5;
+    
+    while (rounds < maxRounds) {
+      rounds++;
+      console.log('[Intel Wire] API call round ' + rounds);
+      
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 4000,
+          system: systemPrompt,
+          tools: [{ type: "web_search_20250305", name: "web_search" }],
+          messages: messages
+        })
+      });
+      
+      const data = await response.json();
+      console.log('[Intel Wire] Response stop_reason:', data.stop_reason, 'content blocks:', data.content?.length);
+      
+      if (!data.content) {
+        console.error('[Intel Wire] No content in response:', data);
+        break;
+      }
+      
+      // Collect all text from this response
+      for (const block of data.content) {
+        if (block.type === 'text') {
+          finalText += block.text;
+          console.log('[Intel Wire] Got text block, length:', block.text.length);
+        }
+      }
+      
+      // If stop_reason is "end_turn" or we got text with JSON, we're done
+      if (data.stop_reason === 'end_turn') {
+        console.log('[Intel Wire] End turn reached');
+        break;
+      }
+      
+      // If stop_reason is "tool_use", the model wants to use a tool
+      // The API handles web_search server-side, so we just need to 
+      // pass the response back as assistant message and continue
+      if (data.stop_reason === 'tool_use') {
+        // Add the assistant's response (with tool_use blocks) to messages
+        messages.push({ role: "assistant", content: data.content });
+        
+        // For server-side tools like web_search, we need to send back 
+        // tool results — but the API handles this automatically
+        // Just add a user message to continue
+        messages.push({ role: "user", content: "Please continue and provide the JSON array of results." });
+        continue;
+      }
+      
+      // Any other stop reason, break
+      break;
+    }
+    
+    console.log('[Intel Wire] Final text length:', finalText.length);
+    console.log('[Intel Wire] Final text preview:', finalText.substring(0, 200));
+    
+    // Parse JSON from collected text
+    let items = [];
+    const jsonMatch = finalText.match(/\[[\s\S]*\]/);
+    if (jsonMatch) {
+      try {
+        items = JSON.parse(jsonMatch[0].replace(/```json|```/g, '').trim());
+        console.log('[Intel Wire] Parsed', items.length, 'items');
+      } catch(e) { 
+        console.warn('[Intel Wire] JSON parse failed:', e);
+        console.log('[Intel Wire] Attempted to parse:', jsonMatch[0].substring(0, 300));
+      }
+    } else {
+      console.warn('[Intel Wire] No JSON array found in response');
+    }
+    
+    state._autoFeedItems = items.filter(item => item && item.text && item.text.length > 10).map(item => ({
+      id: genId(),
+      author: item.author || 'unknown',
+      text: item.text,
+      teams: item.teams || extractTeams(item.text),
+      players: item.players || extractPlayers(item.text),
+      type: item.type || classifyIntel(item.text),
+      timestamp: item.timestamp || 'today',
+      status: 'pending',
+      source: 'auto'
+    }));
+    
+    // Store per-league
+    if (isNFL) nflAutoFeed = state._autoFeedItems;
+    else ncaaAutoFeed = state._autoFeedItems;
+    
+    state._autoFeedLoading = false;
+    state._autoTeamFilter = 'all';
+    render();
+    
+    if (state._autoFeedItems.length > 0) {
+      showToast('✓ Found ' + state._autoFeedItems.length + ' intel items');
+    } else {
+      showToast('Search completed but no depth-chart-impacting news found');
+    }
+    
+  } catch(err) {
+    console.error('[Intel Wire] Auto-fetch failed:', err);
+    state._autoFeedLoading = false;
+    
+    const isLocalFile = window.location.protocol === 'file:';
+    if (isLocalFile || (err.message && err.message.includes('Failed to fetch'))) {
+      state._autoFeedError = 'API unavailable from local file. Use the X search links below, or open this as an artifact in Claude.ai for auto-scanning.';
+    } else {
+      state._autoFeedError = err.message || 'Unknown error';
+    }
+    render();
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════════
+
+function render() {
+  const app = $('#app');
+  app.innerHTML = '';
+  
+  // Main tabs
+  const tabs = h('div', {class: 'main-tabs'},
+    h('button', {class: 'main-tab' + (state.view === 'feed' ? ' on' : ''), onClick: () => setState({view:'feed'})}, '📡 Intel Feed'),
+    h('button', {class: 'main-tab' + (state.view === 'scrape' ? ' on' : ''), onClick: () => setState({view:'scrape'})}, '🔍 Scrape X'),
+    h('button', {class: 'main-tab' + (state.view === 'sources' ? ' on' : ''), onClick: () => setState({view:'sources'})}, '👥 Sources (' + getSources().length + ')'),
+    h('button', {class: 'main-tab' + (state.view === 'settings' ? ' on' : ''), onClick: () => setState({view:'settings'})}, '⚙️ Settings')
+  );
+  app.appendChild(tabs);
+  
+  if (state.view === 'feed') renderFeed(app);
+  else if (state.view === 'scrape') renderScrape(app);
+  else if (state.view === 'sources') renderSources(app);
+  else if (state.view === 'settings') renderSettings(app);
+  
+  // Modal
+  if (state.modalOpen) renderModal();
+}
+
+function renderFeed(app) {
+  // Stats bar
+  const feedItems = activeLeague === 'nfl' ? state.feedItems : ncaaFeedItems;
+  const rejectedIds = getRejectedIds();
+  const total = feedItems.length;
+  const approved = feedItems.filter(i => i.status === 'approved').length;
+  const pending = feedItems.filter(i => i.status === 'pending').length;
+  const rejected = rejectedIds.size;
+  const injuries = feedItems.filter(i => i.type === 'injury' && i.status !== 'rejected').length;
+  const transactions = feedItems.filter(i => (i.type === 'transaction' || i.type === 'portal') && i.status !== 'rejected').length;
+  
+  const stats = h('div', {class: 'stats-bar'},
+    h('div', {class: 'stat-card'}, h('div', {class: 'stat-val'}, String(total)), h('div', {class: 'stat-lbl'}, 'Total Intel')),
+    h('div', {class: 'stat-card'}, h('div', {class: 'stat-val', style:{color:'var(--grnl)'}}, String(approved)), h('div', {class: 'stat-lbl'}, 'Approved')),
+    h('div', {class: 'stat-card'}, h('div', {class: 'stat-val', style:{color:'var(--orgl)'}}, String(pending)), h('div', {class: 'stat-lbl'}, 'Pending')),
+    h('div', {class: 'stat-card'}, h('div', {class: 'stat-val', style:{color:'var(--redl)'}}, String(injuries)), h('div', {class: 'stat-lbl'}, 'Injuries')),
+    h('div', {class: 'stat-card'}, h('div', {class: 'stat-val', style:{color:'var(--purpl)'}}, String(transactions)), h('div', {class: 'stat-lbl'}, activeLeague === 'nfl' ? 'Transactions' : 'Portal/Signings'))
+  );
+  app.appendChild(stats);
+  
+  // Grid: filters + feed
+  const grid = h('div', {class: 'grid-main'});
+  
+  // Left: Quick filters
+  const left = h('div', {class: 'panel'});
+  left.appendChild(h('div', {class: 'panel-hdr'},
+    h('span', {class: 'panel-title'}, 'Filters')
+  ));
+  
+  const filterBody = h('div', {class: 'panel-body'});
+  
+  // Type filters
+  filterBody.appendChild(h('div', {style:{fontSize:'10px',fontWeight:700,color:'var(--t5)',marginBottom:'6px',textTransform:'uppercase',letterSpacing:'.5px'}}, 'Intel Type'));
+  const typeFilters = h('div', {style:{display:'flex',flexWrap:'wrap',gap:'4px',marginBottom:'16px'}});
+  typeFilters.appendChild(h('button', {class: 'feed-filter' + (state.typeFilter === 'all' ? ' on' : ''), onClick: () => setState({typeFilter:'all'})}, 'All'));
+  for (const [type, config] of Object.entries(getIntelTypes())) {
+    typeFilters.appendChild(h('button', {class: 'feed-filter' + (state.typeFilter === type ? ' on' : ''), onClick: () => setState({typeFilter:type})}, config.label));
+  }
+  filterBody.appendChild(typeFilters);
+  
+  // Status filters
+  filterBody.appendChild(h('div', {style:{fontSize:'10px',fontWeight:700,color:'var(--t5)',marginBottom:'6px',textTransform:'uppercase',letterSpacing:'.5px'}}, 'Status'));
+  const statusFilters = h('div', {style:{display:'flex',flexWrap:'wrap',gap:'4px',marginBottom:'16px'}});
+  ['all','pending','approved','rejected'].forEach(s => {
+    statusFilters.appendChild(h('button', {class: 'feed-filter' + (state.statusFilter === s ? ' on' : ''), onClick: () => setState({statusFilter:s})}, s.charAt(0).toUpperCase() + s.slice(1)));
+  });
+  filterBody.appendChild(statusFilters);
+  
+  // Team filter
+  filterBody.appendChild(h('div', {style:{fontSize:'10px',fontWeight:700,color:'var(--t5)',marginBottom:'6px',textTransform:'uppercase',letterSpacing:'.5px'}}, 'Team'));
+  const teamSelect = h('select', {class: 'config-input', style:{marginBottom:'16px'}, onChange: e => setState({teamFilter: e.target.value})});
+  teamSelect.appendChild(h('option', {value: 'all'}, 'All Teams'));
+  getTeams().forEach(t => {
+    const opt = h('option', {value: t.abbr}, t.abbr + ' - ' + t.short);
+    if (state.teamFilter === t.abbr) opt.selected = true;
+    teamSelect.appendChild(opt);
+  });
+  filterBody.appendChild(teamSelect);
+  
+  // Quick actions
+  filterBody.appendChild(h('div', {style:{fontSize:'10px',fontWeight:700,color:'var(--t5)',marginBottom:'6px',textTransform:'uppercase',letterSpacing:'.5px'}}, 'Quick Actions'));
+  filterBody.appendChild(h('button', {class: 'btn-pri', style:{width:'100%',padding:'8px',fontSize:'11px',marginBottom:'6px'}, onClick: () => setState({modalOpen:'manual'})}, '✏️ Add Manual Entry'));
+  filterBody.appendChild(h('button', {class: 'btn-sm', style:{width:'100%',padding:'8px',fontSize:'11px',marginBottom:'6px'}, onClick: () => {
+    const fi = activeLeague === 'nfl' ? state.feedItems : ncaaFeedItems;
+    const pendingItems = fi.filter(i => i.status === 'pending');
+    pendingItems.forEach(i => approveItem(i.id));
+    showToast('✓ Approved ' + pendingItems.length + ' items');
+  }}, '✅ Approve All Pending'));
+  filterBody.appendChild(h('button', {class: 'btn-sm', style:{width:'100%',padding:'8px',fontSize:'11px',marginBottom:'6px',borderColor:'#991b1b',color:'var(--redl)'}, onClick: () => {
+    if (activeLeague === 'nfl') {
+      state.feedItems = state.feedItems.filter(i => i.status !== 'rejected');
+      state.rejectedIds.clear();
+    } else {
+      ncaaFeedItems = ncaaFeedItems.filter(i => i.status !== 'rejected');
+      ncaaRejectedIds.clear();
+    }
+    render();
+    showToast('✓ Cleared rejected items');
+  }}, '🗑️ Clear Rejected'));
+  
+  left.appendChild(filterBody);
+  grid.appendChild(left);
+  
+  // Right: Feed
+  const right = h('div', {class: 'panel'});
+  right.appendChild(h('div', {class: 'panel-hdr'},
+    h('span', {class: 'panel-title'}, 'Intel Feed'),
+    h('span', {class: 'panel-count'}, feedItems.length + ' items')
+  ));
+  
+  const feedBody = h('div', {class: 'panel-body', style:{maxHeight:'calc(100vh - 280px)'}});
+  
+  // Filter items
+  let items = [...feedItems];
+  if (state.typeFilter !== 'all') items = items.filter(i => i.type === state.typeFilter);
+  if (state.statusFilter !== 'all') items = items.filter(i => i.status === state.statusFilter);
+  if (state.teamFilter !== 'all') items = items.filter(i => i.teams && i.teams.includes(state.teamFilter));
+  
+  if (items.length === 0) {
+    feedBody.appendChild(h('div', {class: 'empty-state'},
+      h('div', {class: 'empty-icon'}, '📡'),
+      h('div', {class: 'empty-title'}, 'No Intel Yet'),
+      h('div', {class: 'empty-sub'}, 'Go to "Scrape X" to pull posts from your curated sources, or add entries manually. You can also paste tweets directly.')
+    ));
+  } else {
+    items.forEach(item => {
+      const el = renderFeedItem(item);
+      feedBody.appendChild(el);
+    });
+  }
+  
+  right.appendChild(feedBody);
+  grid.appendChild(right);
+  app.appendChild(grid);
+}
+
+function renderFeedItem(item) {
+  const statusCls = item.status === 'approved' ? 'approved' : item.status === 'rejected' ? 'rejected' : 'pending';
+  const typeCls = getIntelTypes()[item.type] ? getIntelTypes()[item.type].cls : 'type-unknown';
+  const typeLabel = getIntelTypes()[item.type] ? getIntelTypes()[item.type].label : item.type;
+  
+  const el = h('div', {class: 'feed-item ' + statusCls});
+  
+  // Meta row
+  const meta = h('div', {class: 'feed-meta'},
+    h('span', {class: 'feed-author'}, '@' + item.author),
+    h('span', {class: 'feed-type ' + typeCls}, typeLabel),
+    h('span', {class: 'feed-time'}, item.timestamp ? timeAgo(item.timestamp) : '')
+  );
+  el.appendChild(meta);
+  
+  // Text
+  const textEl = h('div', {class: 'feed-text'});
+  textEl.textContent = item.text;
+  el.appendChild(textEl);
+  
+  // Tags
+  if ((item.teams && item.teams.length) || (item.players && item.players.length)) {
+    const tags = h('div', {class: 'feed-tags'});
+    (item.teams || []).forEach(t => tags.appendChild(h('span', {class: 'feed-tag team'}, t)));
+    (item.players || []).forEach(p => tags.appendChild(h('span', {class: 'feed-tag player'}, p)));
+    el.appendChild(tags);
+  }
+  
+  // Actions
+  const actions = h('div', {class: 'feed-actions'});
+  if (item.status !== 'approved') {
+    actions.appendChild(h('button', {class: 'feed-btn approve', onClick: (e) => { e.stopPropagation(); approveItem(item.id); }}, '✓ Approve'));
+  }
+  if (item.status !== 'rejected') {
+    actions.appendChild(h('button', {class: 'feed-btn reject', onClick: (e) => { e.stopPropagation(); rejectItem(item.id); }}, '✗ Reject'));
+  }
+  actions.appendChild(h('button', {class: 'feed-btn reclassify', onClick: (e) => { e.stopPropagation(); setState({modalOpen:'reclassify', reclassifyTarget:item.id}); }}, '⟳ Reclassify'));
+  if (item.url) {
+    actions.appendChild(h('a', {href: item.url, target: '_blank', class: 'feed-btn', style:{textDecoration:'none'}}, '↗ View'));
+  }
+  el.appendChild(actions);
+  
+  return el;
+}
+
+function renderScrape(app) {
+  const sec = h('div', {class: 'anim'});
+  
+  sec.appendChild(h('h2', {class: 'h2'}, activeLeague === 'nfl' ? '📡 NFL Intel Wire' : '🏈 NCAA Intel Wire'));
+  sec.appendChild(h('p', {class: 'sub'}, 'Latest depth-chart-impacting ' + (activeLeague === 'nfl' ? 'NFL' : 'CFB') + ' news from top insiders. Auto-loads on open.'));
+  
+  // ════════════════════════════════════════════
+  // PRIMARY: Auto-loaded insider intel feed
+  // ════════════════════════════════════════════
+  const feedPanel = h('div', {class: 'panel', style:{marginBottom:'16px'}});
+  
+  const feedHdr = h('div', {class: 'panel-hdr'});
+  feedHdr.appendChild(h('span', {class: 'panel-title'}, '🔴 Latest ' + (activeLeague === 'nfl' ? 'NFL' : 'CFB') + ' Intel · 24hrs'));
+  const hdrRight = h('div', {style:{display:'flex',gap:'6px',alignItems:'center'}});
+  if (state._autoFeedLoading) {
+    hdrRight.appendChild(h('span', {style:{fontSize:'10px',color:'var(--orgl)',fontWeight:700,animation:'pulse 1.5s infinite'}}, '⏳ Scanning...'));
+  } else if (state._autoFeedItems && state._autoFeedItems.length > 0) {
+    hdrRight.appendChild(h('span', {style:{fontSize:'10px',color:'var(--grnl)',fontWeight:700}}, '✓ ' + state._autoFeedItems.length + ' items'));
+  }
+  hdrRight.appendChild(h('button', {class: 'btn-sm', style:{fontSize:'10px',padding:'4px 10px'}, onClick: () => { autoFetchInsiderIntel(); }}, '🔄 Refresh'));
+  feedHdr.appendChild(hdrRight);
+  feedPanel.appendChild(feedHdr);
+  
+  const feedBody = h('div', {class: 'panel-body', style:{maxHeight:'500px',padding:'0'}});
+  
+  if (state._autoFeedLoading) {
+    feedBody.appendChild(h('div', {style:{padding:'40px 20px',textAlign:'center'}},
+      h('div', {style:{fontSize:'14px',color:'var(--t3)',marginBottom:'6px',animation:'pulse 1.5s infinite'}}, '🔍 Searching X via AI...'),
+      h('div', {style:{fontSize:'11px',color:'var(--t5)'}}, activeLeague === 'nfl' ? 'Checking Schefter, Rapoport, Pelissero & 12 more insiders' : 'Checking Thamel, McMurphy, Feldman & portal trackers')
+    ));
+  } else if (state._autoFeedError) {
+    feedBody.appendChild(h('div', {style:{padding:'30px 20px',textAlign:'center'}},
+      h('div', {style:{fontSize:'13px',color:'var(--redl)',marginBottom:'6px'}}, '⚠ ' + state._autoFeedError),
+      h('button', {class: 'btn-sm', style:{marginTop:'8px'}, onClick: autoFetchInsiderIntel}, 'Try Again')
+    ));
+  } else if (!state._autoFeedItems || state._autoFeedItems.length === 0) {
+    feedBody.appendChild(h('div', {style:{padding:'30px 20px',textAlign:'center'}},
+      h('div', {style:{fontSize:'13px',color:'var(--t4)',marginBottom:'4px'}}, 'No intel loaded yet'),
+      h('div', {style:{fontSize:'11px',color:'var(--t5)',marginBottom:'10px'}}, 'Click Scan Now to fetch the latest from top ' + (activeLeague === 'nfl' ? 'NFL' : 'CFB') + ' insiders'),
+      h('button', {class: 'btn-pri', style:{fontSize:'12px',padding:'10px 20px'}, onClick: autoFetchInsiderIntel}, '🔍 Scan Now')
+    ));
+  } else {
+    // Team filter bar
+    const filterRow = h('div', {style:{padding:'8px 12px',borderBottom:'1px solid var(--bdr)',display:'flex',gap:'4px',flexWrap:'wrap',background:'var(--bg4)'}});
+    filterRow.appendChild(h('button', {class:'feed-filter' + (state._autoTeamFilter === 'all' ? ' on':''), onClick:()=>setState({_autoTeamFilter:'all'})}, 'All'));
+    const seenTeams = new Set();
+    state._autoFeedItems.forEach(item => (item.teams||[]).forEach(t => seenTeams.add(t)));
+    [...seenTeams].sort().forEach(t => {
+      filterRow.appendChild(h('button', {class:'feed-filter' + (state._autoTeamFilter === t ? ' on':''), onClick:()=>setState({_autoTeamFilter:t})}, t));
+    });
+    feedBody.appendChild(filterRow);
+    
+    let displayItems = state._autoFeedItems;
+    if (state._autoTeamFilter && state._autoTeamFilter !== 'all') {
+      displayItems = displayItems.filter(item => (item.teams||[]).includes(state._autoTeamFilter));
+    }
+    
+    if (displayItems.length === 0) {
+      feedBody.appendChild(h('div', {style:{padding:'20px',textAlign:'center',fontSize:'12px',color:'var(--t5)'}}, 'No items for this team filter'));
+    }
+    
+    displayItems.forEach(item => {
+      const typeCls = getIntelTypes()[item.type] ? getIntelTypes()[item.type].cls : 'type-unknown';
+      const typeLabel = getIntelTypes()[item.type] ? getIntelTypes()[item.type].label : item.type || 'News';
+      
+      const el = h('div', {class: 'feed-item pending', style:{padding:'12px 16px'}});
+      const meta = h('div', {class: 'feed-meta'});
+      meta.appendChild(h('span', {class: 'feed-author'}, '@' + (item.author || 'unknown')));
+      meta.appendChild(h('span', {class: 'feed-type ' + typeCls}, typeLabel));
+      if (item.timestamp) meta.appendChild(h('span', {class: 'feed-time'}, item.timestamp));
+      el.appendChild(meta);
+      
+      const textEl = h('div', {class: 'feed-text'});
+      textEl.textContent = item.text || '';
+      el.appendChild(textEl);
+      
+      if ((item.teams && item.teams.length) || (item.players && item.players.length)) {
+        const tags = h('div', {class: 'feed-tags'});
+        (item.teams || []).forEach(t => tags.appendChild(h('span', {class: 'feed-tag team'}, t)));
+        (item.players || []).forEach(p => tags.appendChild(h('span', {class: 'feed-tag player'}, p)));
+        el.appendChild(tags);
+      }
+      feedBody.appendChild(el);
+    });
+  }
+  
+  feedPanel.appendChild(feedBody);
+  sec.appendChild(feedPanel);
+  
+  // ════════════════════════════════════════════
+  // SECONDARY: Collapsible manual tools
+  // ════════════════════════════════════════════
+  const toolsToggle = h('div', {style:{display:'flex',alignItems:'center',gap:'8px',marginBottom:'12px',cursor:'pointer'}, onClick: () => setState({_showTools: !state._showTools})});
+  toolsToggle.appendChild(h('span', {style:{fontSize:'12px',fontWeight:800,color:'var(--t3)'}}, (state._showTools ? '▾' : '▸') + ' More Search Tools'));
+  toolsToggle.appendChild(h('div', {style:{flex:1,height:'1px',background:'var(--bdr)'}}));
+  sec.appendChild(toolsToggle);
+  
+  if (state._showTools) {
+    function getSince(days) { return new Date(Date.now() - days * 86400000).toISOString().slice(0,10); }
+    function quickUrl(handles, keywords, sinceDays) {
+      const fromClause = handles.map(x => 'from:' + x).join(' OR ');
+      let q = '(' + fromClause + ')';
+      if (keywords.length) q += ' (' + keywords.join(' OR ') + ')';
+      q += ' since:' + getSince(sinceDays || 1) + ' -filter:replies';
+      return 'https://x.com/search?q=' + encodeURIComponent(q) + '&src=typed_query&f=live';
+    }
+    const topInsiders = getTopInsiders();
+    
+    const ip = h('div', {class: 'panel', style:{marginBottom:'12px'}});
+    ip.appendChild(h('div', {class: 'panel-hdr'}, h('span', {class: 'panel-title'}, '🔗 Open in X — Top ' + (activeLeague === 'nfl' ? 'NFL' : 'CFB') + ' Insiders')));
+    const ib = h('div', {class: 'panel-body'});
+    ib.appendChild(h('p', {style:{fontSize:'10px',color:'var(--t5)',marginBottom:'8px'}}, activeLeague === 'nfl' ? 'Schefter, Rapoport, Pelissero, Garafolo + 11 more.' : 'Thamel, McMurphy, Feldman, 247, Rivals + more.'));
+    const ir = h('div', {style:{display:'flex',gap:'6px',flexWrap:'wrap'}});
+    if (activeLeague === 'nfl') {
+      ir.appendChild(h('a', {href: quickUrl(topInsiders, ['injury','IR','questionable','doubtful','ruled out','MRI','surgery'], 1), target:'_blank', class:'btn-sm', style:{textDecoration:'none',padding:'8px 14px'}}, '🏥 Injuries'));
+      ir.appendChild(h('a', {href: quickUrl(topInsiders, ['trade','traded','signed','released','waived','claimed'], 1), target:'_blank', class:'btn-sm', style:{textDecoration:'none',padding:'8px 14px'}}, '📋 Transactions'));
+      ir.appendChild(h('a', {href: quickUrl(topInsiders, ['starter','benched','depth chart','will start'], 1), target:'_blank', class:'btn-sm', style:{textDecoration:'none',padding:'8px 14px'}}, '📊 Depth Chart'));
+    } else {
+      ir.appendChild(h('a', {href: quickUrl(topInsiders, ['injury','questionable','out','surgery','MRI','ACL'], 1), target:'_blank', class:'btn-sm', style:{textDecoration:'none',padding:'8px 14px'}}, '🏥 Injuries'));
+      ir.appendChild(h('a', {href: quickUrl(topInsiders, ['portal','transfer','committed','decommit','flipped','entered'], 1), target:'_blank', class:'btn-sm', style:{textDecoration:'none',padding:'8px 14px'}}, '🔄 Portal'));
+      ir.appendChild(h('a', {href: quickUrl(topInsiders, ['starter','benched','depth chart','QB1','competition'], 1), target:'_blank', class:'btn-sm', style:{textDecoration:'none',padding:'8px 14px'}}, '📊 Depth Chart'));
+    }
+    ir.appendChild(h('a', {href: quickUrl(topInsiders, [], 1), target:'_blank', class:'btn-sm', style:{textDecoration:'none',padding:'8px 14px'}}, '📨 All Posts'));
+    ib.appendChild(ir); ip.appendChild(ib); sec.appendChild(ip);
+    
+    // Open in X: By Team (team reporters only — small handful per team, always fits)
+    const tp = h('div', {class: 'panel', style:{marginBottom:'12px'}});
+    tp.appendChild(h('div', {class: 'panel-hdr'}, h('span', {class: 'panel-title'}, '🔗 Open in X — By Team')));
+    const tb = h('div', {class: 'panel-body'});
+    tb.appendChild(h('p', {style:{fontSize:'10px',color:'var(--t5)',marginBottom:'8px'}}, 'Searches beat reporters for a specific ' + (activeLeague === 'nfl' ? 'team' : 'school') + '. One tab per search.'));
+    const tr2 = h('div', {style:{display:'flex',gap:'8px',alignItems:'center',marginBottom:'8px'}});
+    const ts = h('select', {class: 'config-input', id: 'quickTeamSelect', style:{flex:'1'}});
+    getTeams().forEach(t => ts.appendChild(h('option', {value: t.abbr}, t.abbr + ' — ' + (t.name || t.short))));
+    tr2.appendChild(ts);
+    const ls = h('select', {class: 'config-input', id: 'quickLookback', style:{width:'110px'}});
+    ['1','2','3','7'].forEach(d => ls.appendChild(h('option', {value: d}, d + (d==='1'?' day':' days'))));
+    tr2.appendChild(ls); tb.appendChild(tr2);
+    function openTeamSearch(kw) {
+      const a = document.getElementById('quickTeamSelect').value;
+      const d = parseInt(document.getElementById('quickLookback').value) || 1;
+      // Only team-specific reporters — NOT insiders (keeps URL short)
+      const th = getSources().filter(s => s.teams.includes(a)).map(s => s.h);
+      if (th.length === 0) { showToast('No beat reporters found for ' + a); return; }
+      window.open(quickUrl(th, kw, d), '_blank');
+    }
+    const tbr = h('div', {style:{display:'flex',gap:'6px',flexWrap:'wrap'}});
+    tbr.appendChild(h('button', {class:'btn-sm', style:{padding:'8px 14px',fontSize:'11px'}, onClick:()=>openTeamSearch(['injury','IR','questionable','doubtful','ruled out'])}, '🏥 Injuries'));
+    tbr.appendChild(h('button', {class:'btn-sm', style:{padding:'8px 14px',fontSize:'11px'}, onClick:()=>openTeamSearch(['trade','signed','released','waived','claimed'])}, '📋 Transactions'));
+    tbr.appendChild(h('button', {class:'btn-sm', style:{padding:'8px 14px',fontSize:'11px'}, onClick:()=>openTeamSearch([])}, '📨 All Posts'));
+    tb.appendChild(tbr); tp.appendChild(tb); sec.appendChild(tp);
+    
+    // Paste Tweets
+    const pp = h('div', {class: 'panel', style:{marginBottom:'12px'}});
+    pp.appendChild(h('div', {class: 'panel-hdr'}, h('span', {class: 'panel-title'}, '📋 Paste Tweets')));
+    const pb = h('div', {class: 'panel-body'});
+    const ta = h('textarea', {class: 'ta', id: 'pasteTweets', placeholder: 'Paste tweets here...'});
+    pb.appendChild(ta);
+    pb.appendChild(h('div', {style:{marginTop:'8px',display:'flex',gap:'8px'}},
+      h('button', {class:'btn-pri', style:{fontSize:'11px',padding:'8px 16px'}, onClick:() => {
+        const text = document.getElementById('pasteTweets').value;
+        if (!text.trim()) { showToast('Nothing to parse'); return; }
+        const items = parsePastedTweets(text);
+        if (!items.length) { showToast('Could not parse'); return; }
+        if (activeLeague === 'nfl') state.feedItems.unshift(...items);
+        else ncaaFeedItems.unshift(...items);
+        document.getElementById('pasteTweets').value = '';
+        render();
+        showToast('✓ Parsed ' + items.length + ' tweets');
+      }}, '🧠 Parse & Import'),
+      h('button', {class:'btn-sm', style:{fontSize:'11px',padding:'8px 16px'}, onClick:()=>{document.getElementById('pasteTweets').value='';}}, 'Clear')
+    ));
+    pp.appendChild(pb); sec.appendChild(pp);
+  }
+  
+  app.appendChild(sec);
+}
+
+
+function renderSources(app) {
+  const sec = h('div', {class: 'anim'});
+  sec.appendChild(h('h2', {class: 'h2'}, '👥 Curated Source List'));
+  sec.appendChild(h('p', {class: 'sub'}, 'These are the ' + getSources().length + ' X accounts' + (activeLeague === 'nfl' ? ' from @OnChainTDs following list' : ' from CFB beat reporters list') + '. Categorized by type and team.'));
+  
+  // Category stats
+  const catCounts = {};
+  getSources().forEach(s => { catCounts[s.cat] = (catCounts[s.cat] || 0) + 1; });
+  
+  const statsRow = h('div', {style:{display:'flex',gap:'8px',marginBottom:'16px',flexWrap:'wrap'}});
+  statsRow.appendChild(h('button', {class: 'feed-filter' + (state.sourceFilter === 'all' ? ' on' : ''), onClick: () => setState({sourceFilter:'all'})}, 
+    'All (' + getSources().length + ')'));
+  for (const [cat, config] of Object.entries(CATEGORIES)) {
+    statsRow.appendChild(h('button', {
+      class: 'feed-filter' + (state.sourceFilter === cat ? ' on' : ''),
+      onClick: () => setState({sourceFilter: cat})
+    }, config.label + ' (' + (catCounts[cat] || 0) + ')'));
+  }
+  sec.appendChild(statsRow);
+  
+  // Search
+  const searchRow = h('div', {style:{marginBottom:'12px'}});
+  const searchInp = h('input', {class: 'config-input', placeholder: 'Search handles or team...', value: state.sourceSearch || ''});
+  searchInp.addEventListener('input', e => { state.sourceSearch = e.target.value; render(); });
+  searchRow.appendChild(searchInp);
+  sec.appendChild(searchRow);
+  
+  // Source grid
+  let filtered = getSources();
+  if (state.sourceFilter !== 'all') filtered = filtered.filter(s => s.cat === state.sourceFilter);
+  if (state.sourceSearch) {
+    const q = state.sourceSearch.toLowerCase();
+    filtered = filtered.filter(s => s.h.toLowerCase().includes(q) || (s.teams || []).join(' ').toLowerCase().includes(q));
+  }
+  
+  const grid = h('div', {style:{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(260px, 1fr))',gap:'6px'}});
+  filtered.forEach((srcItem, idx) => {
+    const catInfo = CATEGORIES[srcItem.cat] || CATEGORIES.other;
+    const card = h('div', {class: 'src-item', style:{borderBottom:'none',border:'1px solid var(--bdr)',borderRadius:'6px'}});
+    
+    card.appendChild(h('div', {class: 'src-avatar'}, srcItem.h.substring(0, 2).toUpperCase()));
+    const info = h('div', {class: 'src-info'});
+    info.appendChild(h('div', {class: 'src-handle'}, '@' + srcItem.h));
+    const tagRow = h('div', {style:{display:'flex',gap:'4px',marginTop:'2px',alignItems:'center'}});
+    tagRow.appendChild(h('span', {class: 'src-cat ' + catInfo.cls}, catInfo.label));
+    if (srcItem.teams && srcItem.teams.length) {
+      srcItem.teams.forEach(t => tagRow.appendChild(h('span', {style:{fontSize:'9px',color:'var(--t5)'}}, t)));
+    }
+    info.appendChild(tagRow);
+    card.appendChild(info);
+    
+    // Quick edit dropdown
+    const editBtn = h('select', {class: 'config-input', style:{width:'90px',fontSize:'9px',padding:'2px 4px'}, onChange: e => {
+      const origIdx = getSources().findIndex(s => s.h === srcItem.h);
+      if (origIdx !== -1) getSources()[origIdx].cat = e.target.value;
+      render();
+    }});
+    for (const [k, v] of Object.entries(CATEGORIES)) {
+      const opt = h('option', {value: k}, v.label);
+      if (k === srcItem.cat) opt.selected = true;
+      editBtn.appendChild(opt);
+    }
+    card.appendChild(editBtn);
+    
+    grid.appendChild(card);
+  });
+  sec.appendChild(grid);
+  
+  // Add new source
+  sec.appendChild(h('div', {style:{marginTop:'16px',padding:'12px',background:'var(--bg2)',border:'1px solid var(--bdr)',borderRadius:'8px'}},
+    h('div', {style:{fontSize:'11px',fontWeight:700,color:'var(--t3)',marginBottom:'8px'}}, '+ Add New Source'),
+    h('div', {style:{display:'flex',gap:'8px'}},
+      h('input', {class: 'config-input', id: 'newSourceHandle', placeholder: '@handle'}),
+      h('select', {class: 'config-input', id: 'newSourceCat', style:{width:'140px'}},
+        ...Object.entries(CATEGORIES).map(([k,v]) => h('option', {value: k}, v.label))
+      ),
+      h('input', {class: 'config-input', id: 'newSourceTeam', placeholder: 'Team (e.g. KC)', style:{width:'80px'}}),
+      h('button', {class: 'btn-save', onClick: () => {
+        const handle = document.getElementById('newSourceHandle').value.replace('@','').trim();
+        const cat = document.getElementById('newSourceCat').value;
+        const team = document.getElementById('newSourceTeam').value.trim().toUpperCase();
+        if (!handle) { showToast('Enter a handle'); return; }
+        if (getSources().find(s => s.h.toLowerCase() === handle.toLowerCase())) { showToast('Already exists'); return; }
+        getSources().push({h: handle, cat, teams: team ? [team] : []});
+        render();
+        showToast('✓ Added @' + handle);
+      }}, '+ Add')
+    )
+  ));
+  
+  app.appendChild(sec);
+}
+
+function renderSettings(app) {
+  const sec = h('div', {class: 'anim'});
+  sec.appendChild(h('h2', {class: 'h2'}, '⚙️ Settings'));
+  sec.appendChild(h('p', {class: 'sub'}, 'Configure Intel Wire behavior and manage data.'));
+  
+  // Data management
+  const dataPanel = h('div', {class: 'panel', style:{marginBottom:'16px'}});
+  dataPanel.appendChild(h('div', {class: 'panel-hdr'}, h('span', {class: 'panel-title'}, 'Data Management')));
+  const dataBody = h('div', {class: 'panel-body'});
+  
+  dataBody.appendChild(h('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'8px'}},
+    h('button', {class: 'btn-pri', style:{fontSize:'11px',padding:'10px'}, onClick: saveState}, '💾 Save to LocalStorage'),
+    h('button', {class: 'btn-sm', style:{fontSize:'11px',padding:'10px'}, onClick: importState}, '📤 Import JSON'),
+    h('button', {class: 'btn-sm', style:{fontSize:'11px',padding:'10px'}, onClick: () => doExport('json')}, '📥 Export JSON'),
+    h('button', {class: 'btn-sm', style:{fontSize:'11px',padding:'10px'}, onClick: () => doExport('csv')}, '📥 Export CSV')
+  ));
+  
+  dataBody.appendChild(h('div', {style:{marginTop:'12px'}},
+    h('button', {class: 'btn-red', style:{fontSize:'11px',padding:'8px 16px'}, onClick: () => {
+      if (confirm('Clear ALL data? This cannot be undone.')) {
+        state.feedItems = [];
+        state.approvedItems = [];
+        state.rejectedIds = new Set();
+        state.scrapeHistory = [];
+        localStorage.removeItem('intel_wire_v1_1');
+        render();
+        showToast('✓ All data cleared');
+      }
+    }}, '🗑️ Clear All Data')
+  ));
+  
+  dataPanel.appendChild(dataBody);
+  sec.appendChild(dataPanel);
+  
+  // Integration info
+  const intPanel = h('div', {class: 'panel', style:{marginBottom:'16px'}});
+  intPanel.appendChild(h('div', {class: 'panel-hdr'}, h('span', {class: 'panel-title'}, 'Depth Chart Auditor Integration')));
+  const intBody = h('div', {class: 'panel-body'});
+  intBody.appendChild(h('p', {style:{fontSize:'12px',color:'var(--t3)',marginBottom:'8px'}}, 
+    'Intel Wire exports are formatted for direct import into Depth Chart Auditor v2.0. The JSON export includes franchise_id mappings that match the PFF depth chart CSV format.'));
+  intBody.appendChild(h('div', {style:{padding:'10px',background:'var(--bg3)',borderRadius:'6px',border:'1px solid var(--bdr)'}},
+    h('pre', {style:{fontSize:'10px',color:'var(--t4)',fontFamily:'JetBrains Mono',whiteSpace:'pre-wrap'}}, 
+      '// Export format:\n{\n  "depthChartImpact": {\n    "franchise_ids": [1],      // matches depth_chart CSV\n    "impactType": "injury",    // injury|transaction|benching|...\n    "playerNames": ["Kyler Murray"]\n  }\n}')
+  ));
+  intPanel.appendChild(intBody);
+  sec.appendChild(intPanel);
+  
+  // Source stats
+  const srcPanel = h('div', {class: 'panel'});
+  srcPanel.appendChild(h('div', {class: 'panel-hdr'}, h('span', {class: 'panel-title'}, 'Source Coverage')));
+  const srcBody = h('div', {class: 'panel-body'});
+  
+  const teamCoverage = {};
+  getTeams().forEach(t => { teamCoverage[t.abbr] = 0; });
+  getSources().forEach(s => { (s.teams || []).forEach(t => { if (teamCoverage[t] !== undefined) teamCoverage[t]++; }); });
+  
+  const coverageGrid = h('div', {class: 'team-grid'});
+  getTeams().forEach(t => {
+    const count = teamCoverage[t.abbr] || 0;
+    coverageGrid.appendChild(h('div', {
+      class: 'team-chip',
+      style: {color: count > 0 ? 'var(--grnl)' : 'var(--t5)', borderColor: count > 0 ? '#047857' : 'var(--bdr)'}
+    }, t.abbr + ' · ' + count + ' sources'));
+  });
+  srcBody.appendChild(coverageGrid);
+  srcPanel.appendChild(srcBody);
+  sec.appendChild(srcPanel);
+  
+  app.appendChild(sec);
+}
+
+function renderModal() {
+  // Remove existing
+  const existing = document.querySelector('.modal-overlay');
+  if (existing) existing.remove();
+  
+  const overlay = h('div', {class: 'modal-overlay', onClick: e => { if (e.target === overlay) setState({modalOpen: null}); }});
+  const modal = h('div', {class: 'modal'});
+  
+  if (state.modalOpen === 'reclassify') {
+    modal.appendChild(h('div', {class: 'modal-hdr'},
+      h('span', {style:{fontWeight:800,color:'var(--t1)'}}, 'Reclassify Intel'),
+      h('button', {class: 'modal-close', onClick: () => setState({modalOpen:null})}, '✕')
+    ));
+    const body = h('div', {class: 'modal-body'});
+    body.appendChild(h('p', {style:{fontSize:'12px',color:'var(--t3)',marginBottom:'12px'}}, 'Select the correct intel type:'));
+    
+    for (const [type, config] of Object.entries(getIntelTypes())) {
+      body.appendChild(h('button', {
+        class: 'btn-sm',
+        style: {display:'block',width:'100%',marginBottom:'6px',padding:'10px',textAlign:'left'},
+        onClick: () => reclassifyItem(state.reclassifyTarget, type)
+      }, config.label + ' — ' + config.keywords.slice(0, 5).join(', ') + '...'));
+    }
+    modal.appendChild(body);
+  }
+  
+  else if (state.modalOpen === 'manual') {
+    modal.appendChild(h('div', {class: 'modal-hdr'},
+      h('span', {style:{fontWeight:800,color:'var(--t1)'}}, 'Add Manual Entry'),
+      h('button', {class: 'modal-close', onClick: () => setState({modalOpen:null})}, '✕')
+    ));
+    const body = h('div', {class: 'modal-body'});
+    body.appendChild(h('p', {style:{fontSize:'12px',color:'var(--t3)',marginBottom:'8px'}}, 'Enter intel text. Teams, players, and type will be auto-detected.'));
+    const ta = h('textarea', {class: 'ta', placeholder: 'e.g. Patrick Mahomes (knee) is questionable for Sunday\'s game against the Raiders.'});
+    ta.value = state.manualEntryText;
+    ta.addEventListener('input', e => state.manualEntryText = e.target.value);
+    body.appendChild(ta);
+    body.appendChild(h('button', {class: 'btn-grn', style:{marginTop:'8px'}, onClick: () => { addManualEntry(); setState({modalOpen:null}); }}, '+ Add Entry'));
+    modal.appendChild(body);
+  }
+  
+  else if (state.modalOpen === 'export') {
+    modal.appendChild(h('div', {class: 'modal-hdr'},
+      h('span', {style:{fontWeight:800,color:'var(--t1)'}}, 'Export Intel'),
+      h('button', {class: 'modal-close', onClick: () => setState({modalOpen:null})}, '✕')
+    ));
+    const body = h('div', {class: 'modal-body'});
+    const approved = getApprovedItems().length;
+    const total = getFeedItems().filter(i => !getRejectedIds().has(i.id)).length;
+    body.appendChild(h('p', {style:{fontSize:'12px',color:'var(--t3)',marginBottom:'12px'}},
+      approved > 0 ? 'Exporting ' + approved + ' approved items.' : 'No approved items — exporting all ' + total + ' non-rejected items.'));
+    
+    body.appendChild(h('div', {style:{display:'flex',gap:'8px'}},
+      h('button', {class: 'btn-pri', onClick: () => doExport('json')}, '📥 JSON (for Auditor)'),
+      h('button', {class: 'btn-sm', style:{padding:'10px 20px'}, onClick: () => doExport('csv')}, '📥 CSV')
+    ));
+    modal.appendChild(body);
+  }
+  
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+}
+
+
+// ── Init ──
+loadState();
+// Restore league switcher UI after load
+if (activeLeague === 'ncaa') {
+  document.getElementById('hdrSub').textContent = 'CFB DEPTH CHART INTELLIGENCE \u00b7 X FEED MONITOR';
+  document.getElementById('hdrLogo').style.background = 'linear-gradient(135deg,#7c3aed,#6d28d9)';
+  document.getElementById('hdrLogo').style.boxShadow = '0 2px 8px rgba(124,58,237,.3)';
+  document.querySelectorAll('.lg-btn').forEach(b => b.classList.remove('on'));
+  document.querySelector('.lg-btn.ncaa').classList.add('on');
+}
+render();
+
+// Auto-scan on load (only if we don't already have items)
+if (!state._autoFeedItems || state._autoFeedItems.length === 0) {
+  setTimeout(autoFetchInsiderIntel, 500);
+}
+
+// ── PWA: Register service worker for offline caching ──
+if ('serviceWorker' in navigator) {
+  // Inline service worker via blob URL
+  const swCode = `
+    const CACHE = 'intel-wire-v1.1';
+    self.addEventListener('install', e => { self.skipWaiting(); });
+    self.addEventListener('activate', e => { e.waitUntil(clients.claim()); });
+    self.addEventListener('fetch', e => {
+      e.respondWith(
+        caches.match(e.request).then(r => r || fetch(e.request).then(resp => {
+          if (resp.ok && e.request.method === 'GET') {
+            const clone = resp.clone();
+            caches.open(CACHE).then(c => c.put(e.request, clone));
+          }
+          return resp;
+        }).catch(() => caches.match(e.request)))
+      );
+    });
+  `;
+  const blob = new Blob([swCode], {type: 'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
+}
+
+// ── iOS standalone mode: prevent bounce scroll ──
+if (window.navigator.standalone) {
+  document.body.style.overscrollBehavior = 'none';
+}
+</script>
+</body>
+</html>
